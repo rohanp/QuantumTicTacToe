@@ -89,7 +89,6 @@ class Game extends React.Component {
 
   handleClick(i){
 
-
     if (this.state.cycle)
       this.handleCyclicEntanglement(i);
 
@@ -160,6 +159,7 @@ class Game extends React.Component {
   }
 
   handleCollapse(mark){
+    console.log(mark);
     console.log("you chose " + mark);
   }
 
@@ -173,18 +173,22 @@ class Game extends React.Component {
     let status;
 
     if (winner)
-      status = winner + " wins!";
+      status = `${winner} wins!`;
     else
-      status = this.state.xIsNext ? 'Next player: X'  : 'Next player: Y';
+      status = this.state.xIsNext ? "Player X's turn"  : "Player Y's turn";
 
+    if (this.state.cycle && !this.state.collapseSquare)
+      status = `A loop of entanglement has occured! Player ${this.state.xIsNext ? 'Y' : 'X'} will decide which of the possible states the board will collapse into. Click one of the squares involved in the loop.`;
 
     if (this.state.collapseSquare){
       var collapseChoices = this.state.qSquares[this.state.collapseSquare];
 
       var choices = collapseChoices.map((choice) => {
+        let handleCollapse_ = this.handleCollapse.bind(this, choice);
+
         return (
           <div className="collapseChoice"
-             onClick={(choice) => this.handleCollapse(choice)}>
+             onClick={(choice) => handleCollapse_(choice)}>
              {choice}
           </div>
         );
@@ -206,7 +210,7 @@ class Game extends React.Component {
 
         </div>
         <div className="game-info">
-          <div> {status} </div>
+          <div className="status"> {status} </div>
           <div> {choices} </div>
         </div>
       </div>
