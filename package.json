@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "assert": "^1.4.1",
+    "classnames": "^2.2.5",
     "immutable": "^3.8.1",
     "react": "^15.5.4",
     "react-dom": "^15.5.4"

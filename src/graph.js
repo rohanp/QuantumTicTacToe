@@ -1,4 +1,5 @@
 // undirected multigraph class
+import assert from "assert"
 
 class Node{
   constructor(id){
@@ -9,8 +10,8 @@ class Node{
 
 class Edge{
   constructor(node1, node2, key){
-    this.n1 = node1;
-    this.n2 = node2;
+    this.start = node1;
+    this.end = node2;
     this.key = key;
   }
 }
@@ -18,113 +19,221 @@ class Edge{
 export default class Graph{
 
   constructor(){
-      this.graph = {};
+      this.nodes = {};
+      this.edges = {};
   }
 
   addNode(id){
-    this.graph[id] = new Node(id);
+    this.nodes[id] = new Node(id);
   }
 
   getNode(id){
-    return this.graph[id];
+    return this.nodes[id];
   }
 
-  get nodes(){
-    return Object.keys(this.graph)
+  hasNode(id){
+    return id in this.nodes;
   }
 
   addEdge(id1, id2, key){
-    if (!(id1 in this.graph))
+    if (! (id1 in this.nodes))
       this.addNode(id1);
 
-    if (!(id2 in this.graph))
+    if (! (id2 in this.nodes))
       this.addNode(id2);
 
-    let edge = new Edge(this.getNode(id1), this.getNode(id2), key)
+    let edge = new Edge(this.getNode(id1), this.getNode(id2), key);
+    let reverseEdge = new Edge(this.getNode(id2), this.getNode(id1), key);
 
-    this.getNode(id1).edges.push(edge)
-    this.getNode(id2).edges.push(edge);
+    this.getNode(id1).edges.push(edge);
+    this.getNode(id2).edges.push(reverseEdge);
+    this.edges[key] = edge;
   }
 
-  isEmpty(){
-    return this.nodes.length === 0;
+  numNodes(){
+    return Object.keys(this.nodes).length;
   }
 
   isCyclic(startId){
-    if (this.isEmpty())
-      return false;
-
-    const start = this.getNode(startId);
-    var q = [start];
-    var layers = new Map(); // maps node to layer
-    layers.set(start, 0);
-
-    while( q ){
-      let curr = q.shift();
-      let layer = layers.get(curr);
-
-      for (let child of curr.children){
-
-        if (layers.has(child)) {
-          if (layers.get(child) === layer - 1) // node we just came from
-            continue;
-          else if ( layers.get(child) >= layer)
-            return true;
-        } else {
-          q.push(child);
-          layers.set(child, layer + 1);
-        }
-      }
-
-    }
+    return Boolean(this.getCycle(startId));
   }
 
   getCycle(startId){
-    if (this.isEmpty())
-      return false;
 
+    // case one: graph too small for cycles
+    if (this.numNodes() < 2)
+      return null;
+
+    // case two: cycle of len 2
     const start = this.getNode(startId);
-    var q = [start];
-    var layers = new Map(); // maps node to layer
-    var prev = new Map(); // maps node to prev node
-    layers.set(start, 0);
+    let visited = new Set();
+    for (let edge of start.edges){
+      if (visited.has(edge.end)){
+        console.log("case2!")
+        return [edge.start, edge.end];
+      }
 
-    while( q ){
+      visited.add(edge.end);
+    }
+
+    // case three: cycle of len > 2
+    let q = [start];
+    let layers = new Map(); // maps node to layer
+    let prev = new Map(); // maps node to prev
+    layers.set(start, 0);
+    prev.set(start, null);
+
+    while( q !== undefined && q.length > 0 ){
+
       let curr = q.shift();
       let layer = layers.get(curr);
 
-      for (let child of curr.children){
+      for (let edge of curr.edges){
 
-        if (layers.has(child)) {
-          if (layers.get(child) === layer - 1)
-            continue; // skip if node we just came from
-
-          else if ( layers.get(child) >= layer)
-            return this._constructPath(child, curr, prev)
+        if (layers.has(edge.end)) {
+          if (layers.get(edge.end) === layer - 1) // node we just came from
+            continue;
+          else{
+            console.log("case 3!")
+            return this._constructPath(edge.start, edge.end, prev);
+          }
         }
 
-        q.push(child);
-        layers.set(child, layer + 1);
-
+        q.push(edge.end);
+        layers.set(edge.end, layer + 1);
+        prev.set(edge.end, edge.start);
       }
     }
+
   }
 
   _constructPath(node1, node2, prev){
+    let cycle = [];
+    let curr = node1;
 
+    while (curr){
+      cycle.push(curr);
+      curr = prev.get(curr);
+    }
+
+    curr = node2;
+
+    while(prev.get(curr)){
+      cycle.unshift(curr);
+      curr = prev.get(curr);
+    }
+
+    return cycle;
   }
 }
 
+//////////////// UNIT TESTS ///////////////////
+
 // eslint-disable-next-line
-function test(){
-  let g = new Graph()
-  g.addNode('a')
-  g.addNode('b')
-  g.addNode('c')
-  g.addEdge('a', 'b')
-  g.addEdge('b', 'c')
-  g.addEdge('c', 'a')
-  console.log(g.isCyclic('a'))
+function testSimpleCyclic(){
+  let g = new Graph();
+  g.addNode('a');
+  g.addNode('b');
+  g.addNode('c');
+  g.addEdge('a', 'b');
+  g.addEdge('b', 'c');
+  g.addEdge('c', 'a');
+  assert(g.isCyclic('a'));
+  console.log(g.getCycle('a'));
 }
 
-test();
+// eslint-disable-next-line
+function testPair(){
+  let g = new Graph();
+  g.addNode('a');
+  g.addNode('b');
+  g.addEdge('a', 'b', 'x1');
+  g.addEdge('a', 'b', 'y1');
+  assert(g.isCyclic('a'));
+  console.log(g.getCycle('a'));
+}
+
+// eslint-disable-next-line
+function testReversePair(){
+  let g = new Graph();
+  g.addNode('a');
+  g.addNode('b');
+  g.addEdge('a', 'b', 'x1');
+  g.addEdge('b', 'a', 'x2');
+  assert(g.isCyclic('a'));
+  console.log(g.getCycle('a'));
+}
+
+// eslint-disable-next-line
+function testMessyCyclic(){
+  let g = new Graph()
+  g.addNode('a');
+  g.addNode('b');
+  g.addNode('c');
+  g.addNode('d');
+  g.addNode('e');
+  g.addNode('f');
+
+  g.addEdge('b', 'a', 'x1');
+  g.addEdge('b', 'c', 'y1');
+  g.addEdge('c', 'd', 'x2');
+  g.addEdge('c', 'e', 'y2');
+  g.addEdge('e', 'f', 'x3');
+  g.addEdge('f', 'b', 'y3')
+  assert(g.isCyclic('b'));
+  console.log(g.getCycle('b'));
+}
+
+// eslint-disable-next-line
+function testSimpleAcyclic(){
+  let g = new Graph()
+  g.addNode('a');
+  g.addNode('b');
+
+  g.addEdge('a', 'b', 'x1');
+  assert(! g.isCyclic('b'));
+  console.log(g.getCycle('b'));
+}
+
+// eslint-disable-next-line
+function testPairAcyclic(){
+  let g = new Graph()
+  g.addNode('a');
+  g.addNode('b');
+
+  g.addEdge('a', 'b', 'x1');
+  assert(! g.isCyclic('b'));
+  console.log(g.getCycle('b'));
+}
+
+// eslint-disable-next-line
+function testMessyAcyclic(){
+  let g = new Graph()
+  g.addNode('a');
+  g.addNode('b');
+  g.addNode('c');
+  g.addNode('d');
+  g.addNode('e');
+  g.addNode('f');
+
+  g.addEdge('b', 'a', 'x1');
+  g.addEdge('b', 'c', 'y1');
+  g.addEdge('c', 'd', 'x2');
+  g.addEdge('c', 'e', 'y2');
+  g.addEdge('e', 'f', 'x3');
+  assert(! g.isCyclic('b'));
+  console.log(g.getCycle('b'));
+}
+
+function runTests(){
+  testSimpleCyclic();
+  testPair();
+  testReversePair();
+  testMessyCyclic();
+
+  testSimpleAcyclic();
+  testPairAcyclic();
+  testMessyAcyclic();
+}
+
+runTests();

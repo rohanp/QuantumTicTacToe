@@ -17,19 +17,22 @@ ol, ul {
   margin-bottom: 10px;
 }
 
+.marks{
+  margin:5px;
+  margin-top: 5px;
+}
+
 .square {
   background: #fff;
-  height: 175px;
-  width: 175px;
   border: 1px solid #999;
   float: left;
   font-size: 24px;
   font-weight: bold;
   line-height: 34px;
+  height: 160px;
+  width: 160px;
   margin-right: -1px;
   margin-top: -1px;
-  padding: 0;
-  text-align: center;
 }
 
 .square:focus {
