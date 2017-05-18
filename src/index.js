@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { List } from 'immutable';
 import classNames from 'classnames';
+//import io from 'socket.io';
 
 import Graph from './graph.js';
 import './index.css';
@@ -11,12 +12,19 @@ var g = new Graph();
 
 function Square (props){
 
-    if (props.cValue)
+    if (props.cValue){
+      let cls = classNames('square', 'classical');
+      
       return (
-        <button className="square" onClick={props.onClick}>
+        <button className={cls} onClick={props.onClick}>
+        <span className="dashing"><i></i></span>
+        <span className="dashing"><i></i></span>
+        <span className="dashing"><i></i></span>
+        <span className="dashing"><i></i></span>
           { props.cValue }
         </button>
       );
+    }
     else{
 
       let cls = classNames('square',
@@ -158,9 +166,35 @@ class Game extends React.Component {
     this.setState({collapseSquare: i});
   }
 
-  handleCollapse(mark){
-    console.log(mark);
-    console.log("you chose " + mark);
+  handleCollapse(mark, i, visited=null){
+    if (!visited)
+      var visited = [mark];
+
+    let cSquares = this.state.cSquares;
+    let qSquares = this.state.qSquares;
+    cSquares[i] = mark;
+    qSquares[i] = null;
+
+    this.setState( {
+      cSquares: cSquares,
+      qSquares: qSquares
+    });
+
+    console.log("here");
+    console.log(visited);
+
+    for (let edge of g.getNode(i).edges){
+      if (! visited.includes(edge.key)){
+        visited.push(edge.key);
+        this.handleCollapse(edge.key, edge.end.id, visited);
+      }
+    }
+
+    this.setState( {
+      cycle: null,
+      collapseSquare: null
+    });
+
   }
 
   showMessage(msg){
@@ -177,18 +211,27 @@ class Game extends React.Component {
     else
       status = this.state.xIsNext ? "Player X's turn"  : "Player Y's turn";
 
-    if (this.state.cycle && !this.state.collapseSquare)
-      status = `A loop of entanglement has occured! Player ${this.state.xIsNext ? 'Y' : 'X'} will decide which of the possible states the board will collapse into. Click one of the squares involved in the loop.`;
 
-    if (this.state.collapseSquare){
-      var collapseChoices = this.state.qSquares[this.state.collapseSquare];
+    if (this.state.cycle && !this.state.collapseSquare){
+      let whoDecidesCollapse = this.state.xIsNext ? 'X' : 'Y' // opposite of who made cycle
+      status = `A loop of entanglement has occured! Player ${whoDecidesCollapse} will decide which of the possible states the board will collapse into. Click one of the squares involved in the loop.`;
+    } else if (this.state.cycle && this.state.collapseSquare) {
+      let whoDecidesCollapse = this.state.xIsNext ? 'X' : 'Y' // opposite of who made cycle
+      status = `Now, player ${whoDecidesCollapse}: choose below which state you want to occupy the selected square.`;
+    }
+
+    let i = this.state.collapseSquare
+
+    if (i){
+      var collapseChoices = this.state.qSquares[i];
 
       var choices = collapseChoices.map((choice) => {
-        let handleCollapse_ = this.handleCollapse.bind(this, choice);
+        let handleCollapse_ = this.handleCollapse.bind(this, choice, i, null);
 
         return (
           <div className="collapseChoice"
-             onClick={(choice) => handleCollapse_(choice)}>
+             onClick={(choice) => handleCollapse_(choice, i, null)}
+             key={choice}>
              {choice}
           </div>
         );

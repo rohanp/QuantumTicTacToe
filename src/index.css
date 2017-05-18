@@ -36,6 +36,10 @@ ol, ul {
   margin-top: -1px;
 }
 
+.classical{
+  font-size: 35px;
+}
+
 .square:focus {
   outline: none;
 }

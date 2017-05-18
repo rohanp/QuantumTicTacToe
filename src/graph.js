@@ -69,7 +69,6 @@ export default class Graph{
     let visited = new Set();
     for (let edge of start.edges){
       if (visited.has(edge.end)){
-        console.log("case2!")
         return [edge.start, edge.end];
       }
 
@@ -94,7 +93,6 @@ export default class Graph{
           if (layers.get(edge.end) === layer - 1) // node we just came from
             continue;
           else{
-            console.log("case 3!")
             return this._constructPath(edge.start, edge.end, prev);
           }
         }
@@ -225,6 +223,7 @@ function testMessyAcyclic(){
   console.log(g.getCycle('b'));
 }
 
+// eslint-disable-next-line
 function runTests(){
   testSimpleCyclic();
   testPair();
@@ -236,4 +235,4 @@ function runTests(){
   testMessyAcyclic();
 }
 
-runTests();
+//runTests();
