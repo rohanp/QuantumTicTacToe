@@ -100,6 +100,8 @@ class Game extends React.Component {
       cycle: null,
       collapseSquare: null,
       gameOver: false,
+      xScore: 0,
+      yScore: 0,
     }
   }
 
@@ -200,8 +202,8 @@ class Game extends React.Component {
 
       this.setState({
         gameOver: Boolean(scores),
-        XScores: this.state.XScore + scores['X'],
-        YScores: this.state.YScore + scores['Y'],
+        xScore: this.state.xScore + scores['X'],
+        yScore: this.state.yScore + scores['Y'],
       })
     } else {
       msg = `Player ${this.state.xIsNext ? 'X' : 'Y'}'s turn!`;
@@ -327,6 +329,8 @@ class Game extends React.Component {
               onClick={(i) => this.handleClick(i)}
             />
 
+            <div className="xScore"> X: {this.state.xScore} </div>
+            <div className="yScore"> Y: {this.state.yScore} </div>
         </div>
           <StatusBar
             status={this.state.status}
