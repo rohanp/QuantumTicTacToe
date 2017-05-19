@@ -196,9 +196,17 @@ class Game extends React.Component {
 
     let msg;
     if (scores){
-      msg = `Player ${scores['X'] > scores['Y'] ? 'X' : 'Y'} wins!!!`;
-      msg += `X gets ${scores['X']} points`;
-      msg += `Y gets ${scores['Y']} points`;
+      let winner = scores['X'] > scores['Y'] ? 'X' : 'Y';
+      let loser = winner === 'X' ? 'Y' : 'X';
+
+      if (scores['X'] + scores['Y'] === 1)
+        msg = `${winner} wins!!! \n ${winner} gets 1 point \n ${loser} gets 0 points`;
+
+      else if (scores['X'] === 1.5 || scores['Y'] === 1.5)
+        msg = `${winner} wins with a double three-in-a-row!!! \n ${winner} gets 1.5 points \n ${loser} gets 0 points`;
+
+      else if (scores['X'] + scores['Y'] === 1.5)
+        msg = `Both players got three in a row, but ${winner} got it first! (The mark placed in${winner}'s three-in-a-row has a smaller subscript than ${loser} \n ${winner} gets 1 point \n ${loser} gets 0.5 points`;
 
       this.setState({
         gameOver: Boolean(scores),

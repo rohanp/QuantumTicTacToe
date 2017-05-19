@@ -51,11 +51,13 @@ ol, ul {
 }
 
 .xScore{
-  margin: 10px;
+  margin-top: 10px;
+  font-size: 20px;
   float: left;
 }
 .yScore{
   margin-top: 10px;
+  font-size: 20px;
   float: right;
 }
 
