@@ -14,7 +14,7 @@ function Square (props){
 
     if (props.cValue){
       let cls = classNames('square', 'classical');
-      
+
       return (
         <button className={cls} onClick={props.onClick}>
         <span className="dashing"><i></i></span>
@@ -80,6 +80,13 @@ class Board extends React.Component {
   }
 }
 
+function StatusBar(props){
+  return (<div className="game-info">
+            <div className="status"> {props.status} </div>
+            <div> {props.choices} </div>
+          </div>);
+}
+
 class Game extends React.Component {
   constructor(){
     super();
@@ -92,6 +99,7 @@ class Game extends React.Component {
       subTurnNum: 0,
       cycle: null,
       collapseSquare: null,
+      gameOver: false,
     }
   }
 
@@ -100,26 +108,22 @@ class Game extends React.Component {
     if (this.state.cycle)
       this.handleCyclicEntanglement(i);
 
-    else if (calculateWinner(this.state.cSquares))
-      this.showMessage(calculateWinner(this.state.cSquares) + " already won :( Start a new game!!")
+    else if (this.state.winner)
+      this.setState({status: `${this.state.winner} already won :( Start a new game!!`});
 
     else if (this.state.cSquares[i])
-      this.showMessage("This square already has a classical mark! No more quantum marks can go here >:(")
+      this.setState({status: "This square already has a classical mark! No more quantum marks can go here >:("});
 
     else if (this.state.subTurnNum % 2 // second move
         && this.state.lastMove === i)
-      this.showMessage("Can't move twice in the same square! \n What do you think this is... regular tic tac toe??");
+      this.setState({status: "Can't move twice in the same square! \n What do you think this is... regular tic tac toe??"});
 
     else
       this.handleNormalMove(i);
   }
 
   handleNormalMove(i){
-    const qSquares = this.state.qSquares;
-    const cSquares = this.state.cSquares
-
-    if (calculateWinner(cSquares) || cSquares[i])
-      return
+    let qSquares = this.state.qSquares;
 
     let marker;
     if (this.state.xIsNext)
@@ -137,10 +141,17 @@ class Game extends React.Component {
     if (this.state.subTurnNum % 2) // second move
       g.addEdge(this.state.lastMove, i, marker);
 
-    let cycle = g.getCycle(i)
+    let cycle = g.getCycle(i);
+
+    let status;
     if (cycle){
       console.log("cycle detected!");
       cycle = cycle.map((x) => x.id);
+
+      let whoDecidesCollapse = this.state.xIsNext ? 'X' : 'Y' // opposite of who made cycle
+      status = `A loop of entanglement has occured! Player ${whoDecidesCollapse} will decide which of the possible states the board will collapse into. Click one of the squares involved in the loop.`;
+    } else {
+      status = `Player ${this.state.xIsNext ? 'X' : 'Y'}'s turn!`
     }
 
     this.setState((state, props) => ({
@@ -154,6 +165,7 @@ class Game extends React.Component {
                    subTurnNum: (state.subTurnNum + 1) % 4,
                    lastMove: i,
                    cycle: cycle,
+                   status: status,
                  }));
 
   }
@@ -163,13 +175,47 @@ class Game extends React.Component {
     if (! this.state.cycle.includes(i))
       return
 
-    this.setState({collapseSquare: i});
+    let whoDecidesCollapse = this.state.xIsNext ? 'X' : 'Y' // opposite of who made cycle
+    let status = `Now, player ${whoDecidesCollapse}: choose below which state you want to occupy the selected square.`
+
+    this.setState({
+                  collapseSquare: i,
+                  status: status,
+                });
   }
 
-  handleCollapse(mark, i, visited=null){
-    if (!visited)
-      var visited = [mark];
+  handleCollapse(mark, i){
+    let visited = [mark];
 
+    this._handleCollapseHelper(mark, i, visited)
+
+    let scores = this.calculateScores();
+    console.log(scores);
+
+    let msg;
+    if (scores){
+      msg = `Player ${scores['X'] > scores['Y'] ? 'X' : 'Y'} wins!!!`;
+      msg += `X gets ${scores['X']} points`;
+      msg += `Y gets ${scores['Y']} points`;
+
+      this.setState({
+        gameOver: Boolean(scores),
+        XScores: this.state.XScore + scores['X'],
+        YScores: this.state.YScore + scores['Y'],
+      })
+    } else {
+      msg = `Player ${this.state.xIsNext ? 'X' : 'Y'}'s turn!`;
+    }
+
+    this.setState({
+      cycle: null,
+      collapseSquare: null,
+      status: msg,
+    });
+
+  }
+
+  _handleCollapseHelper(mark, i, visited){
     let cSquares = this.state.cSquares;
     let qSquares = this.state.qSquares;
     cSquares[i] = mark;
@@ -186,43 +232,74 @@ class Game extends React.Component {
     for (let edge of g.getNode(i).edges){
       if (! visited.includes(edge.key)){
         visited.push(edge.key);
-        this.handleCollapse(edge.key, edge.end.id, visited);
+        this._handleCollapseHelper(edge.key, edge.end.id, visited);
       }
     }
-
-    this.setState( {
-      cycle: null,
-      collapseSquare: null
-    });
-
   }
 
   showMessage(msg){
     console.log(msg);
   }
 
-  render() {
+  calculateWinners(){
+    const squares = this.state.cSquares;
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
 
-    const winner = calculateWinner(this.state.qSquares);
-    let status;
+    let winners = [];
 
-    if (winner)
-      status = `${winner} wins!`;
-    else
-      status = this.state.xIsNext ? "Player X's turn"  : "Player Y's turn";
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      if (squares[a] && squares[b] && squares[c] &&
+          squares[a][0] === squares[b][0] &&
+          squares[a][0] === squares[c][0]) {
 
+        let subscripts = [squares[a][1], squares[b][1], squares[c][1]].map(Number);
 
-    if (this.state.cycle && !this.state.collapseSquare){
-      let whoDecidesCollapse = this.state.xIsNext ? 'X' : 'Y' // opposite of who made cycle
-      status = `A loop of entanglement has occured! Player ${whoDecidesCollapse} will decide which of the possible states the board will collapse into. Click one of the squares involved in the loop.`;
-    } else if (this.state.cycle && this.state.collapseSquare) {
-      let whoDecidesCollapse = this.state.xIsNext ? 'X' : 'Y' // opposite of who made cycle
-      status = `Now, player ${whoDecidesCollapse}: choose below which state you want to occupy the selected square.`;
+        winners.push( [
+                        Math.max(...subscripts),
+                        squares[a][0],
+                        lines[i],
+                      ]
+                    ) ;
+      }
     }
+
+    return winners;
+  }
+
+  calculateScores() {
+    let winners = this.calculateWinners();
+
+    if (winners.length === 0)
+      return null
+
+    winners.sort();
+    let scores = {'X': 0, 'Y': 0}
+
+    if (winners.length >= 1)
+      scores[ winners[0][1] ] += 1;
+    else if (winners.length >= 2)
+      scores[ winners[1][1] ] += 0.5;
+    else if (winners.length === 3)
+      scores[ winners[2][1] ] += 0.5;
+
+    return scores;
+  }
+
+  render() {
 
     let i = this.state.collapseSquare
 
-    if (i){
+    if (i !== null){
       var collapseChoices = this.state.qSquares[i];
 
       var choices = collapseChoices.map((choice) => {
@@ -236,7 +313,6 @@ class Game extends React.Component {
           </div>
         );
       });
-
     }
 
     return (
@@ -252,22 +328,16 @@ class Game extends React.Component {
             />
 
         </div>
-        <div className="game-info">
-          <div className="status"> {status} </div>
-          <div> {choices} </div>
-        </div>
+          <StatusBar
+            status={this.state.status}
+            choices={choices}
+           />
       </div>
     );
   }
 }
 
 // ========================================
-
-function calculateWinner(squares) {
-
-
-  return null;
-}
 
 ReactDOM.render(
   <Game />,
