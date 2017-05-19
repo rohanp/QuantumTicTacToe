@@ -21,7 +21,9 @@ function Square (props){
         <span className="dashing"><i></i></span>
         <span className="dashing"><i></i></span>
         <span className="dashing"><i></i></span>
+        <div className="marks">
           { props.cValue[0] }<sub>{ props.cValue[1] }</sub>
+        </div>
         </button>
       );
     }
@@ -30,6 +32,7 @@ function Square (props){
       let cls = classNames('square',
                           {'rotating-dashed': props.isHighlighted},
                           {'selected': props.isBeingCollapsed})
+
       return (
         <div className={cls} onClick={props.onClick}>
           <span className="dashing"><i></i></span>
@@ -150,7 +153,7 @@ class Game extends React.Component {
       console.log("cycle detected!");
       cycle = cycle.map((x) => x.id);
 
-      let whoDecidesCollapse = this.state.xIsNext ? 'X' : 'Y' // opposite of who made cycle
+      let whoDecidesCollapse = this.state.xIsNext ? 'Y' : 'X' // opposite of who made cycle
       status = `A loop of entanglement has occured! Player ${whoDecidesCollapse} will decide which of the possible states the board will collapse into. Click one of the squares involved in the loop.`;
     } else {
       status = `Player ${this.state.xIsNext ? 'X' : 'Y'}'s turn!`
@@ -177,7 +180,7 @@ class Game extends React.Component {
     if (! this.state.cycle.includes(i))
       return
 
-    let whoDecidesCollapse = this.state.xIsNext ? 'X' : 'Y' // opposite of who made cycle
+    let whoDecidesCollapse = this.state.xIsNext ? 'Y' : 'X' // opposite of who made cycle
     let status = `Now, player ${whoDecidesCollapse}: choose below which state you want to occupy the selected square.`
 
     this.setState({
@@ -326,24 +329,27 @@ class Game extends React.Component {
     }
 
     return (
-      <div className="game">
-        <div className="game-board">
+      <div>
+        <center> <h1> Quantum Tic Tac Toe </h1> </center>
+        <div className="game">
+          <div className="game-board">
 
-            <Board
-              cSquares={this.state.cSquares}
-              qSquares={this.state.qSquares}
-              cycle={this.state.cycle}
-              collapseSquare={this.state.collapseSquare}
-              onClick={(i) => this.handleClick(i)}
-            />
+              <Board
+                cSquares={this.state.cSquares}
+                qSquares={this.state.qSquares}
+                cycle={this.state.cycle}
+                collapseSquare={this.state.collapseSquare}
+                onClick={(i) => this.handleClick(i)}
+              />
 
-            <div className="xScore"> X: {this.state.xScore} </div>
-            <div className="yScore"> Y: {this.state.yScore} </div>
+              <div className="xScore"> X: {this.state.xScore} </div>
+              <div className="yScore"> Y: {this.state.yScore} </div>
+          </div>
+            <StatusBar
+              status={this.state.status}
+              choices={choices}
+             />
         </div>
-          <StatusBar
-            status={this.state.status}
-            choices={choices}
-           />
       </div>
     );
   }
