@@ -21,7 +21,7 @@ function Square (props){
         <span className="dashing"><i></i></span>
         <span className="dashing"><i></i></span>
         <span className="dashing"><i></i></span>
-          { props.cValue }
+          { props.cValue[0] }<sub>{ props.cValue[1] }</sub>
         </button>
       );
     }
@@ -110,8 +110,8 @@ class Game extends React.Component {
     if (this.state.cycle)
       this.handleCyclicEntanglement(i);
 
-    else if (this.state.winner)
-      this.setState({status: `${this.state.winner} already won :( Start a new game!!`});
+    else if (this.state.gameOver)
+      this.setState({status: "This game is already over! Start a new game!!"});
 
     else if (this.state.cSquares[i])
       this.setState({status: "This square already has a classical mark! No more quantum marks can go here >:("});
