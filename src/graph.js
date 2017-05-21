@@ -1,5 +1,5 @@
 // undirected multigraph class
-import assert from "assert"
+import assert from 'assert';
 
 class Node{
   constructor(id){
@@ -58,6 +58,13 @@ export default class Graph{
     return Boolean(this.getCycle(startId));
   }
 
+  getCycleNodes(startId){
+    //TODO
+  }
+  getCycleEdges(startId){
+    //TODO
+  }
+
   getCycle(startId){
 
     // case one: graph too small for cycles
@@ -67,18 +74,23 @@ export default class Graph{
     // case two: cycle of len 2
     const start = this.getNode(startId);
     let visited = new Set();
+    let endToEdge = new Map();
+
     for (let edge of start.edges){
       if (visited.has(edge.end)){
-        return [edge.start, edge.end];
+        return [ new Set([edge.start.id, edge.end.id]),
+                 new Set([edge.key, endToEdge.get(edge.end).key])
+               ];
       }
 
       visited.add(edge.end);
+      endToEdge.set(edge.end, edge);
     }
 
     // case three: cycle of len > 2
     let q = [start];
     let layers = new Map(); // maps node to layer
-    let prev = new Map(); // maps node to prev
+    let prev = new Map(); // maps node to its associated edge
     layers.set(start, 0);
     prev.set(start, null);
 
@@ -93,35 +105,46 @@ export default class Graph{
           if (layers.get(edge.end) === layer - 1) // node we just came from
             continue;
           else{
-            return this._constructPath(edge.start, edge.end, prev);
+            return this._constructPath(edge, prev);
           }
         }
 
         q.push(edge.end);
         layers.set(edge.end, layer + 1);
-        prev.set(edge.end, edge.start);
+        prev.set(edge.end, edge);
       }
     }
 
   }
 
-  _constructPath(node1, node2, prev){
-    let cycle = [];
-    let curr = node1;
+  _constructPath(edge, prev){
+    let cycleNodeIds = [];
+    let cycleEdgeKeys = [edge.key];
+    let currNode, currEdge;
 
-    while (curr){
-      cycle.push(curr);
-      curr = prev.get(curr);
+    console.log("one way")
+
+    // go around one way
+    currNode = edge.start;
+    while (prev.get(currNode)){
+      currEdge = prev.get(currNode);
+      cycleNodeIds.push(currNode.id);
+      cycleEdgeKeys.push(currEdge.key);
+      currNode = currEdge.start;
+    }
+    cycleNodeIds.push(currNode.id) /// get start node only once
+
+    console.log("other way")
+    // go around the other way
+    currNode = edge.end;
+    while(prev.get(currNode)){
+      currEdge = prev.get(currNode);
+      cycleNodeIds.unshift(currNode.id);
+      cycleEdgeKeys.unshift(currEdge.key);
+      currNode = currEdge.start;
     }
 
-    curr = node2;
-
-    while(prev.get(curr)){
-      cycle.unshift(curr);
-      curr = prev.get(curr);
-    }
-
-    return cycle;
+    return [new Set(cycleNodeIds), new Set(cycleEdgeKeys)];
   }
 }
 
@@ -133,9 +156,9 @@ function testSimpleCyclic(){
   g.addNode('a');
   g.addNode('b');
   g.addNode('c');
-  g.addEdge('a', 'b');
-  g.addEdge('b', 'c');
-  g.addEdge('c', 'a');
+  g.addEdge('a', 'b', 'ab');
+  g.addEdge('b', 'c', 'bc');
+  g.addEdge('c', 'a', 'ca');
   assert(g.isCyclic('a'));
   console.log(g.getCycle('a'));
 }
@@ -172,12 +195,12 @@ function testMessyCyclic(){
   g.addNode('e');
   g.addNode('f');
 
-  g.addEdge('b', 'a', 'x1');
-  g.addEdge('b', 'c', 'y1');
-  g.addEdge('c', 'd', 'x2');
-  g.addEdge('c', 'e', 'y2');
-  g.addEdge('e', 'f', 'x3');
-  g.addEdge('f', 'b', 'y3')
+  g.addEdge('b', 'a', 'ba');
+  g.addEdge('b', 'c', 'bc');
+  g.addEdge('c', 'd', 'cd');
+  g.addEdge('c', 'e', 'ce');
+  g.addEdge('e', 'f', 'ef');
+  g.addEdge('f', 'b', 'fb');
   assert(g.isCyclic('b'));
   console.log(g.getCycle('b'));
 }
@@ -235,4 +258,4 @@ function runTests(){
   testMessyAcyclic();
 }
 
-//runTests();
+runTests();

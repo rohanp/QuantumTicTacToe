@@ -50,11 +50,12 @@ function Square (props){
 class Board extends React.Component {
 
   renderSquare(i) {
+    console.log(this.props.cycleSquares);
     return <Square
               cValue={this.props.cSquares[i]}
               qValues={this.props.qSquares[i]}
               onClick={() => this.props.onClick(i)}
-              isHighlighted={this.props.cycle && this.props.cycle.includes(i)}
+              isHighlighted={this.props.cycleSquares && this.props.cycleSquares.has(i)}
               isBeingCollapsed={this.props.collapseSquare === i}
            />;
   }
@@ -84,6 +85,7 @@ class Board extends React.Component {
 }
 
 function StatusBar(props){
+
   return (<div className="game-info">
             <div className="status"> {props.status} </div>
             <div> {props.choices} </div>
@@ -100,7 +102,8 @@ class Game extends React.Component {
       xIsNext: true,
       turnNum: 1,
       subTurnNum: 0,
-      cycle: null,
+      cycleSquares: null,
+      cycleMarks: null,
       collapseSquare: null,
       gameOver: false,
       xScore: 0,
@@ -110,7 +113,7 @@ class Game extends React.Component {
 
   handleClick(i){
 
-    if (this.state.cycle)
+    if (this.state.cycleSquares)
       this.handleCyclicEntanglement(i);
 
     else if (this.state.gameOver)
@@ -146,18 +149,22 @@ class Game extends React.Component {
     if (this.state.subTurnNum % 2) // second move
       g.addEdge(this.state.lastMove, i, marker);
 
-    let cycle = g.getCycle(i);
-
-    let status;
-    if (cycle){
+    let cycleSquares, cycleMarks, status;
+    console.log(g);
+    
+    if (g.isCyclic(i)){
       console.log("cycle detected!");
-      cycle = cycle.map((x) => x.id);
+      console.log(g.getCycle(i));
+      [cycleSquares, cycleMarks] = g.getCycle(i);
 
       let whoDecidesCollapse = this.state.xIsNext ? 'Y' : 'X' // opposite of who made cycle
       status = `A loop of entanglement has occured! Player ${whoDecidesCollapse} will decide which of the possible states the board will collapse into. Click one of the squares involved in the loop.`;
     } else {
       status = `Player ${this.state.xIsNext ? 'X' : 'Y'}'s turn!`
     }
+
+    console.log(cycleSquares);
+    console.log(cycleMarks);
 
     this.setState((state, props) => ({
                    qSquares: qSquares,
@@ -169,7 +176,8 @@ class Game extends React.Component {
                               : state.turnNum,
                    subTurnNum: (state.subTurnNum + 1) % 4,
                    lastMove: i,
-                   cycle: cycle,
+                   cycleSquares: cycleSquares,
+                   cycleMarks: cycleMarks,
                    status: status,
                  }));
 
@@ -177,7 +185,7 @@ class Game extends React.Component {
 
   handleCyclicEntanglement(i){
 
-    if (! this.state.cycle.includes(i))
+    if (! this.state.cycleSquares.has(i))
       return
 
     let whoDecidesCollapse = this.state.xIsNext ? 'Y' : 'X' // opposite of who made cycle
@@ -190,7 +198,7 @@ class Game extends React.Component {
   }
 
   handleCollapse(mark, i){
-    let visited = [mark];
+    let visited = new Set([mark]);
 
     this._handleCollapseHelper(mark, i, visited)
 
@@ -221,7 +229,8 @@ class Game extends React.Component {
     }
 
     this.setState({
-      cycle: null,
+      cycleSquares: null,
+      cycleMarks: null,
       collapseSquare: null,
       status: msg,
     });
@@ -234,17 +243,16 @@ class Game extends React.Component {
     cSquares[i] = mark;
     qSquares[i] = null;
 
+    console.log(cSquares);
+
     this.setState( {
       cSquares: cSquares,
       qSquares: qSquares
     });
 
-    console.log("here");
-    console.log(visited);
-
     for (let edge of g.getNode(i).edges){
-      if (! visited.includes(edge.key)){
-        visited.push(edge.key);
+      if (! visited.has(edge.key)){
+        visited.add(edge.key);
         this._handleCollapseHelper(edge.key, edge.end.id, visited);
       }
     }
@@ -310,20 +318,26 @@ class Game extends React.Component {
 
   render() {
 
-    let i = this.state.collapseSquare
+    console.log(this.state)
+
+    let i = this.state.collapseSquare;
 
     if (i !== null){
       var collapseChoices = this.state.qSquares[i];
 
-      var choices = collapseChoices.map((choice) => {
-        let handleCollapse_ = this.handleCollapse.bind(this, choice, i, null);
+      console.log(Array.from(collapseChoices.filter((choice) => this.state.cycleMarks.has(choice) )));
 
-        return (
-          <div className="collapseChoice"
-             onClick={(choice) => handleCollapse_(choice, i, null)}
-             key={choice}>
-             {choice}
-          </div>
+      var choices = collapseChoices
+        .filter((choice) => this.state.cycleMarks.has(choice) )
+        .map((choice) => {
+          let handleCollapse_ = this.handleCollapse.bind(this, choice, i, null);
+
+          return (
+            <div className="collapseChoice"
+               onClick={(choice) => handleCollapse_(choice, i, null)}
+               key={choice}>
+               {choice}
+            </div>
         );
       });
     }
@@ -337,7 +351,7 @@ class Game extends React.Component {
               <Board
                 cSquares={this.state.cSquares}
                 qSquares={this.state.qSquares}
-                cycle={this.state.cycle}
+                cycleSquares={this.state.cycleSquares}
                 collapseSquare={this.state.collapseSquare}
                 onClick={(i) => this.handleClick(i)}
               />
@@ -346,7 +360,7 @@ class Game extends React.Component {
               <div className="yScore"> Y: {this.state.yScore} </div>
           </div>
             <StatusBar
-              status={this.state.status}
+              status={this.state.status ? this.state.status : "Welcome to Quantum Tic Tac Toe! Player X, click anywhere to get started"}
               choices={choices}
              />
         </div>
