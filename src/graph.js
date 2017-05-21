@@ -122,8 +122,6 @@ export default class Graph{
     let cycleEdgeKeys = [edge.key];
     let currNode, currEdge;
 
-    console.log("one way")
-
     // go around one way
     currNode = edge.start;
     while (prev.get(currNode)){
@@ -134,7 +132,6 @@ export default class Graph{
     }
     cycleNodeIds.push(currNode.id) /// get start node only once
 
-    console.log("other way")
     // go around the other way
     currNode = edge.end;
     while(prev.get(currNode)){
@@ -258,4 +255,4 @@ function runTests(){
   testMessyAcyclic();
 }
 
-runTests();
+//runTests();

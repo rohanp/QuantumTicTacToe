@@ -50,7 +50,6 @@ function Square (props){
 class Board extends React.Component {
 
   renderSquare(i) {
-    console.log(this.props.cycleSquares);
     return <Square
               cValue={this.props.cSquares[i]}
               qValues={this.props.qSquares[i]}
@@ -150,11 +149,8 @@ class Game extends React.Component {
       g.addEdge(this.state.lastMove, i, marker);
 
     let cycleSquares, cycleMarks, status;
-    console.log(g);
-    
+
     if (g.isCyclic(i)){
-      console.log("cycle detected!");
-      console.log(g.getCycle(i));
       [cycleSquares, cycleMarks] = g.getCycle(i);
 
       let whoDecidesCollapse = this.state.xIsNext ? 'Y' : 'X' // opposite of who made cycle
@@ -162,9 +158,6 @@ class Game extends React.Component {
     } else {
       status = `Player ${this.state.xIsNext ? 'X' : 'Y'}'s turn!`
     }
-
-    console.log(cycleSquares);
-    console.log(cycleMarks);
 
     this.setState((state, props) => ({
                    qSquares: qSquares,
@@ -203,7 +196,6 @@ class Game extends React.Component {
     this._handleCollapseHelper(mark, i, visited)
 
     let scores = this.calculateScores();
-    console.log(scores);
 
     let msg;
     if (scores){
@@ -242,8 +234,6 @@ class Game extends React.Component {
     let qSquares = this.state.qSquares;
     cSquares[i] = mark;
     qSquares[i] = null;
-
-    console.log(cSquares);
 
     this.setState( {
       cSquares: cSquares,
@@ -317,17 +307,12 @@ class Game extends React.Component {
   }
 
   render() {
-
-    console.log(this.state)
-
     let i = this.state.collapseSquare;
+    let choices;
 
     if (i !== null){
-      var collapseChoices = this.state.qSquares[i];
 
-      console.log(Array.from(collapseChoices.filter((choice) => this.state.cycleMarks.has(choice) )));
-
-      var choices = collapseChoices
+      choices = this.state.qSquares[i]
         .filter((choice) => this.state.cycleMarks.has(choice) )
         .map((choice) => {
           let handleCollapse_ = this.handleCollapse.bind(this, choice, i, null);
