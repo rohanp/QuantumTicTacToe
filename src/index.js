@@ -26,12 +26,38 @@ function Square (props){
         </div>
         </button>
       );
-    }
-    else{
-
+    } else{
       let cls = classNames('square',
                           {'rotating-dashed': props.isHighlighted},
                           {'selected': props.isBeingCollapsed})
+
+
+      // get colors right on marks
+      let spans;
+      if (props.qValues){
+        let marks = Array.from(props.qValues.filter((x) => x != null));
+
+        if (marks.length >= 1){
+          console.log("here")
+          spans = Array.from(marks.slice(0, -1).map((m) => {
+
+
+            let markCls = classNames("black",
+                                    {"blue": props.isHighlighted && props.cycleMarks.has(m)},
+                                    {"red": props.isBeingCollapsed && props.cycleMarks.has(m)})
+
+            return <span className={markCls} key={m}>{ m[0] }<sub>{ m[1] }</sub>, </span>;
+          }));
+
+          let lastMark = marks[marks.length - 1];
+          let markCls = classNames("black",
+                                  {"blue": props.isHighlighted && props.cycleMarks.has(lastMark)},
+                                  {"red": props.isBeingCollapsed && props.cycleMarks.has(lastMark)})
+
+          spans.push(<span className={markCls} key={lastMark}>{ lastMark[0] }<sub>{ lastMark[1] }</sub></span>);
+        }
+      }
+      console.log(spans)
 
       return (
         <div className={cls} onClick={props.onClick}>
@@ -40,7 +66,7 @@ function Square (props){
           <span className="dashing"><i></i></span>
           <span className="dashing"><i></i></span>
           <div className="marks">
-            { props.qValues ?  props.qValues.join(', ') : null}
+            {spans}
           </div>
         </div>
       );
@@ -56,6 +82,7 @@ class Board extends React.Component {
               onClick={() => this.props.onClick(i)}
               isHighlighted={this.props.cycleSquares && this.props.cycleSquares.has(i)}
               isBeingCollapsed={this.props.collapseSquare === i}
+              cycleMarks={this.props.cycleMarks}
            />;
   }
 
@@ -337,6 +364,7 @@ class Game extends React.Component {
                 cSquares={this.state.cSquares}
                 qSquares={this.state.qSquares}
                 cycleSquares={this.state.cycleSquares}
+                cycleMarks={this.state.cycleMarks}
                 collapseSquare={this.state.collapseSquare}
                 onClick={(i) => this.handleClick(i)}
               />

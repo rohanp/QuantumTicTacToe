@@ -7,6 +7,19 @@ ol, ul {
   padding-left: 30px;
 }
 
+.black{
+  color: black;
+}
+
+.blue{
+  color: #3498db;
+}
+
+.red{
+  color: red;
+}
+
+
 .board-row:after {
   clear: both;
   content: "";
