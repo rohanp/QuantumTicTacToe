@@ -41,7 +41,6 @@ function Square (props){
           console.log("here")
           spans = Array.from(marks.slice(0, -1).map((m) => {
 
-
             let markCls = classNames("black",
                                     {"blue": props.isHighlighted && props.cycleMarks.has(m)},
                                     {"red": props.isBeingCollapsed && props.cycleMarks.has(m)})
@@ -182,8 +181,6 @@ class Game extends React.Component {
 
       let whoDecidesCollapse = this.state.xIsNext ? 'Y' : 'X' // opposite of who made cycle
       status = `A loop of entanglement has occured! Player ${whoDecidesCollapse} will decide which of the possible states the board will collapse into. Click one of the squares involved in the loop.`;
-    } else {
-      status = `Player ${this.state.xIsNext ? 'X' : 'Y'}'s turn!`
     }
 
     this.setState((state, props) => ({
@@ -354,6 +351,12 @@ class Game extends React.Component {
       });
     }
 
+    let status
+    if (this.state.status)
+      status = this.state.status;
+    else
+      status = `Player ${this.state.xIsNext ? 'X' : 'Y'} is next!`;
+
     return (
       <div>
         <center> <h1> Quantum Tic Tac Toe </h1> </center>
@@ -373,7 +376,7 @@ class Game extends React.Component {
               <div className="yScore"> Y: {this.state.yScore} </div>
           </div>
             <StatusBar
-              status={this.state.status ? this.state.status : "Welcome to Quantum Tic Tac Toe! Player X, click anywhere to get started"}
+              status={status}
               choices={choices}
              />
         </div>
