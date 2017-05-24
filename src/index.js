@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { List } from 'immutable';
 import classNames from 'classnames';
 //import io from 'socket.io';
 
@@ -10,62 +9,73 @@ import './rotation.css';
 
 var g = new Graph();
 
+function QuantumMarks (props){
+
+  // to get colors right on marks
+  let spans;
+  if (props.qValues){
+    let marks = Array.from(props.qValues.filter((x) => x != null));
+
+    if (marks.length >= 1){
+      console.log("here")
+      spans = Array.from(marks.slice(0, -1).map((m) => {
+
+        let markCls = classNames("black",
+                                {"blue": props.isHighlighted && props.cycleMarks.has(m)},
+                                {"red": props.isBeingCollapsed && props.cycleMarks.has(m)})
+
+        return <span className={markCls} key={m}>{ m[0] }<sub>{ m[1] }</sub>, </span>;
+      }));
+
+      let lastMark = marks[marks.length - 1];
+      let markCls = classNames("black",
+                              {"blue": props.isHighlighted && props.cycleMarks.has(lastMark)},
+                              {"red": props.isBeingCollapsed && props.cycleMarks.has(lastMark)})
+
+      spans.push(<span className={markCls} key={lastMark}>{ lastMark[0] }<sub>{ lastMark[1] }</sub></span>);
+    }
+  }
+  return <div> {spans} </div>;
+}
+
 function Square (props){
+
+    let dashHelper = (
+      <div>
+        <span className="dashing"><i></i></span>
+        <span className="dashing"><i></i></span>
+        <span className="dashing"><i></i></span>
+        <span className="dashing"><i></i></span>
+      </div>
+    );
 
     if (props.cValue){
       let cls = classNames('square', 'classical');
 
       return (
-        <button className={cls} onClick={props.onClick}>
-        <span className="dashing"><i></i></span>
-        <span className="dashing"><i></i></span>
-        <span className="dashing"><i></i></span>
-        <span className="dashing"><i></i></span>
-        <div className="marks">
-          { props.cValue[0] }<sub>{ props.cValue[1] }</sub>
+        <div className={cls} onClick={props.onClick}>
+          {dashHelper}
+          <div className="marks">
+            { props.cValue[0] }<sub>{ props.cValue[1] }</sub>
+          </div>
         </div>
-        </button>
       );
     } else{
+
       let cls = classNames('square',
                           {'rotating-dashed': props.isHighlighted},
                           {'selected': props.isBeingCollapsed})
 
-
-      // get colors right on marks
-      let spans;
-      if (props.qValues){
-        let marks = Array.from(props.qValues.filter((x) => x != null));
-
-        if (marks.length >= 1){
-          console.log("here")
-          spans = Array.from(marks.slice(0, -1).map((m) => {
-
-            let markCls = classNames("black",
-                                    {"blue": props.isHighlighted && props.cycleMarks.has(m)},
-                                    {"red": props.isBeingCollapsed && props.cycleMarks.has(m)})
-
-            return <span className={markCls} key={m}>{ m[0] }<sub>{ m[1] }</sub>, </span>;
-          }));
-
-          let lastMark = marks[marks.length - 1];
-          let markCls = classNames("black",
-                                  {"blue": props.isHighlighted && props.cycleMarks.has(lastMark)},
-                                  {"red": props.isBeingCollapsed && props.cycleMarks.has(lastMark)})
-
-          spans.push(<span className={markCls} key={lastMark}>{ lastMark[0] }<sub>{ lastMark[1] }</sub></span>);
-        }
-      }
-      console.log(spans)
-
       return (
         <div className={cls} onClick={props.onClick}>
-          <span className="dashing"><i></i></span>
-          <span className="dashing"><i></i></span>
-          <span className="dashing"><i></i></span>
-          <span className="dashing"><i></i></span>
+          {dashHelper}
           <div className="marks">
-            {spans}
+            <QuantumMarks
+              isHighlighted={props.isHighlighted}
+              isBeingCollapsed={props.isBeingCollapsed}
+              qValues={props.qValues}
+              cycleMarks={props.cycleMarks}
+            />
           </div>
         </div>
       );
@@ -165,9 +175,9 @@ class Game extends React.Component {
       marker = 'Y' + this.state.turnNum;
 
     if (qSquares[i])
-      qSquares[i] = qSquares[i].push(marker);
+      qSquares[i].push(marker);
     else
-      qSquares[i] = List([marker]);
+      qSquares[i] = [marker];
 
     if (! g.hasNode(i))
       g.addNode(i);
