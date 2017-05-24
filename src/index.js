@@ -11,16 +11,14 @@ var g = new Graph();
 
 function QuantumMarks (props){
 
-  // to get colors right on marks
   let spans;
-  if (props.qValues){
-    let marks = Array.from(props.qValues.filter((x) => x != null));
+  if (props.qMarks){
+    let marks = Array.from(props.qMarks.filter((x) => x != null));
 
     if (marks.length >= 1){
-      console.log("here")
       spans = Array.from(marks.slice(0, -1).map((m) => {
 
-        let markCls = classNames("black",
+      let markCls = classNames("black",
                                 {"blue": props.isHighlighted && props.cycleMarks.has(m)},
                                 {"red": props.isBeingCollapsed && props.cycleMarks.has(m)})
 
@@ -49,14 +47,14 @@ function Square (props){
       </div>
     );
 
-    if (props.cValue){
+    if (props.cMark){
       let cls = classNames('square', 'classical');
 
       return (
         <div className={cls} onClick={props.onClick}>
           {dashHelper}
           <div className="marks">
-            { props.cValue[0] }<sub>{ props.cValue[1] }</sub>
+            { props.cMark[0] }<sub>{ props.cMark[1] }</sub>
           </div>
         </div>
       );
@@ -73,7 +71,7 @@ function Square (props){
             <QuantumMarks
               isHighlighted={props.isHighlighted}
               isBeingCollapsed={props.isBeingCollapsed}
-              qValues={props.qValues}
+              qMarks={props.qMarks}
               cycleMarks={props.cycleMarks}
             />
           </div>
@@ -86,9 +84,9 @@ class Board extends React.Component {
 
   renderSquare(i) {
     return <Square
-              cValue={this.props.cSquares[i]}
-              qValues={this.props.qSquares[i]}
-              onClick={() => this.props.onClick(i)}
+              cMark={this.props.cSquares[i]}
+              qMarks={this.props.qSquares[i]}
+              onClick={() => this.props.onSquareClick(i)}
               isHighlighted={this.props.cycleSquares && this.props.cycleSquares.has(i)}
               isBeingCollapsed={this.props.collapseSquare === i}
               cycleMarks={this.props.cycleMarks}
@@ -119,11 +117,23 @@ class Board extends React.Component {
   }
 }
 
-function StatusBar(props){
+function SideBar(props){
+  let choices;
+
+  if (props.choices)
+    choices = props.choices.map((choice) => {
+        return (
+          <div className="collapseChoice"
+             onClick={() => props.onChoiceClick(choice)}
+             key={choice}>
+             {choice}
+          </div>
+        );
+      });
 
   return (<div className="game-info">
             <div className="status"> {props.status} </div>
-            <div> {props.choices} </div>
+            {choices}
           </div>);
 }
 
@@ -146,7 +156,15 @@ class Game extends React.Component {
     }
   }
 
-  handleClick(i){
+  whoseTurn(){
+    return (this.state.subTurnNum < 2) ? 'X' : 'Y';
+  }
+
+  isSecondMove(){
+    return this.state.subTurnNum === 1 || this.state.subTurnNum === 3;
+  }
+
+  handleSquareClick(i){
 
     if (this.state.cycleSquares)
       this.handleCyclicEntanglement(i);
@@ -167,12 +185,7 @@ class Game extends React.Component {
 
   handleNormalMove(i){
     let qSquares = this.state.qSquares;
-
-    let marker;
-    if (this.state.xIsNext)
-      marker = 'X' + this.state.turnNum;
-    else
-      marker = 'Y' + this.state.turnNum;
+    let marker = this.whoseTurn() + this.state.turnNum;
 
     if (qSquares[i])
       qSquares[i].push(marker);
@@ -181,7 +194,7 @@ class Game extends React.Component {
 
     if (! g.hasNode(i))
       g.addNode(i);
-    if (this.state.subTurnNum % 2) // second move
+    if (this.isSecondMove())
       g.addEdge(this.state.lastMove, i, marker);
 
     let cycleSquares, cycleMarks, status;
@@ -189,15 +202,12 @@ class Game extends React.Component {
     if (g.isCyclic(i)){
       [cycleSquares, cycleMarks] = g.getCycle(i);
 
-      let whoDecidesCollapse = this.state.xIsNext ? 'Y' : 'X' // opposite of who made cycle
+      let whoDecidesCollapse = this.whoseTurn() === 'X' ? 'Y' : 'X' // opposite of who made cycle
       status = `A loop of entanglement has occured! Player ${whoDecidesCollapse} will decide which of the possible states the board will collapse into. Click one of the squares involved in the loop.`;
     }
 
     this.setState((state, props) => ({
                    qSquares: qSquares,
-                   xIsNext: (state.subTurnNum === 3 || state.subTurnNum === 0)
-                              ? true
-                              : false,
                    turnNum: (state.subTurnNum + 1 === 4)
                               ? state.turnNum + 1
                               : state.turnNum,
@@ -215,7 +225,7 @@ class Game extends React.Component {
     if (! this.state.cycleSquares.has(i))
       return
 
-    let whoDecidesCollapse = this.state.xIsNext ? 'Y' : 'X' // opposite of who made cycle
+    let whoDecidesCollapse = this.whoseTurn() === 'X' ? 'Y' : 'X' // opposite of who made cycle
     let status = `Now, player ${whoDecidesCollapse}: choose below which state you want to occupy the selected square.`
 
     this.setState({
@@ -224,41 +234,30 @@ class Game extends React.Component {
                 });
   }
 
-  handleCollapse(mark, i){
+  handleCollapse(mark){
+    console.log(mark);
+    let i = this.state.collapseSquare;
     let visited = new Set([mark]);
 
     this._handleCollapseHelper(mark, i, visited)
 
     let scores = this.calculateScores();
 
-    let msg;
     if (scores){
-      let winner = scores['X'] > scores['Y'] ? 'X' : 'Y';
-      let loser = winner === 'X' ? 'Y' : 'X';
-
-      if (scores['X'] + scores['Y'] === 1)
-        msg = `${winner} wins!!! \n ${winner} gets 1 point \n ${loser} gets 0 points`;
-
-      else if (scores['X'] === 1.5 || scores['Y'] === 1.5)
-        msg = `${winner} wins with a double three-in-a-row!!! \n ${winner} gets 1.5 points \n ${loser} gets 0 points`;
-
-      else if (scores['X'] + scores['Y'] === 1.5)
-        msg = `Both players got three in a row, but ${winner} got it first! (The mark placed in${winner}'s three-in-a-row has a smaller subscript than ${loser} \n ${winner} gets 1 point \n ${loser} gets 0.5 points`;
+      let msg = this.setScoreMsg(scores);
 
       this.setState({
-        gameOver: Boolean(scores),
+        gameOver: true,
         xScore: this.state.xScore + scores['X'],
         yScore: this.state.yScore + scores['Y'],
+        status: msg,
       })
-    } else {
-      msg = `Player ${this.state.xIsNext ? 'X' : 'Y'}'s turn!`;
     }
 
     this.setState({
       cycleSquares: null,
       cycleMarks: null,
       collapseSquare: null,
-      status: msg,
     });
 
   }
@@ -282,8 +281,21 @@ class Game extends React.Component {
     }
   }
 
-  showMessage(msg){
-    console.log(msg);
+  getWinnerMsg(scores){
+    let msg;
+    let winner = scores['X'] > scores['Y'] ? 'X' : 'Y';
+    let loser = winner === 'X' ? 'Y' : 'X';
+
+    if (scores['X'] + scores['Y'] === 1)
+      msg = `${winner} wins!!! \n ${winner} gets 1 point \n ${loser} gets 0 points`;
+
+    else if (scores['X'] === 1.5 || scores['Y'] === 1.5)
+      msg = `${winner} wins with a double three-in-a-row!!! \n ${winner} gets 1.5 points \n ${loser} gets 0 points`;
+
+    else if (scores['X'] + scores['Y'] === 1.5)
+      msg = `Both players got three in a row, but ${winner} got it first! (The mark placed in${winner}'s three-in-a-row has a smaller subscript than ${loser} \n ${winner} gets 1 point \n ${loser} gets 0.5 points`;
+
+    return msg;
   }
 
   calculateWinners(){
@@ -341,31 +353,16 @@ class Game extends React.Component {
   }
 
   render() {
-    let i = this.state.collapseSquare;
-    let choices;
+    let status, choices;
 
-    if (i !== null){
-
-      choices = this.state.qSquares[i]
-        .filter((choice) => this.state.cycleMarks.has(choice) )
-        .map((choice) => {
-          let handleCollapse_ = this.handleCollapse.bind(this, choice, i, null);
-
-          return (
-            <div className="collapseChoice"
-               onClick={(choice) => handleCollapse_(choice, i, null)}
-               key={choice}>
-               {choice}
-            </div>
-        );
-      });
-    }
-
-    let status
     if (this.state.status)
       status = this.state.status;
     else
-      status = `Player ${this.state.xIsNext ? 'X' : 'Y'} is next!`;
+      status = `Player ${this.whoseTurn()} is next!`;
+
+    if(this.state.collapseSquare)
+      choices = this.state.qSquares[ this.state.collapseSquare ]
+        .filter((choice) => this.state.cycleMarks.has(choice) )
 
     return (
       <div>
@@ -379,16 +376,19 @@ class Game extends React.Component {
                 cycleSquares={this.state.cycleSquares}
                 cycleMarks={this.state.cycleMarks}
                 collapseSquare={this.state.collapseSquare}
-                onClick={(i) => this.handleClick(i)}
+                onSquareClick={(i) => this.handleSquareClick(i)}
               />
 
               <div className="xScore"> X: {this.state.xScore} </div>
               <div className="yScore"> Y: {this.state.yScore} </div>
           </div>
-            <StatusBar
+
+            <SideBar
               status={status}
               choices={choices}
+              onChoiceClick={(choice) => this.handleCollapse(choice)}
              />
+
         </div>
       </div>
     );
