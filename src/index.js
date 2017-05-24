@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
+import attachFastClick from 'fastclick';
 
 import Graph from './graph.js';
 import {getWinnerMsg, calculateScores} from './helpers.js'
@@ -339,3 +340,4 @@ ReactDOM.render(
   <Game />,
   document.getElementById('root')
 );
+attachFastClick(document.body);

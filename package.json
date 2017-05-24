@@ -5,6 +5,7 @@
   "dependencies": {
     "assert": "^1.4.1",
     "classnames": "^2.2.5",
+    "fastclick": "^1.0.6",
     "react": "^15.5.4",
     "react-dom": "^15.5.4"
   },
