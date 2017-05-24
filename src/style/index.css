@@ -99,6 +99,7 @@ ol, ul {
   display: flex;
   flex-direction: row;
   justify-content: center;
+  margin-top: 50px;
 }
 
 .game-info {
