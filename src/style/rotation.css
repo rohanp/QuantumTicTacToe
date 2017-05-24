@@ -1,11 +1,11 @@
 .rotating-dashed {
   position: relative;
   overflow: hidden;
-  color: #3498db;
+  color: #00BBD3;
 }
 
 .selected{
-  color: red;
+  color: #e74c3c;
 }
 
 .rotating-dashed .dashing {

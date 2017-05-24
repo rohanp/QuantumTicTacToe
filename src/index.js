@@ -316,7 +316,7 @@ function QuantumMarks (props){
     if (marks.length >= 1){
       spans = Array.from(marks.slice(0, -1).map((m) => {
 
-      let markCls = classNames("black",
+      let markCls = classNames("white",
                                {"blue": props.isHighlighted && props.cycleMarks.has(m)},
                                {"red": props.isBeingCollapsed && props.cycleMarks.has(m)})
 
@@ -324,7 +324,7 @@ function QuantumMarks (props){
       }));
 
       let lastMark = marks[marks.length - 1];
-      let markCls = classNames("black",
+      let markCls = classNames("white",
                               {"blue": props.isHighlighted && props.cycleMarks.has(lastMark)},
                               {"red": props.isBeingCollapsed && props.cycleMarks.has(lastMark)})
 
