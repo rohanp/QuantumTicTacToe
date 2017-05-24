@@ -50,6 +50,7 @@ ol, ul {
   margin-right: -1px;
   margin-top: -1px;
   border-color: #00BBD3;
+  user-select: none;
 }
 
 .classical{
@@ -78,6 +79,7 @@ ol, ul {
   cursor: default;
   border-style: solid;
   margin: 5px;
+  user-select: none;
 }
 
 .collapseChoice:hover{
