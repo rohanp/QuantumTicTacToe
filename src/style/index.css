@@ -50,7 +50,16 @@ ol, ul {
 }
 
 .classical{
-  font-size: 50px;
+  font-size: 60px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.adjustCenter{
+  margin-top: 20px;
+  margin-left: 30px;
 }
 
 .collapseChoice {

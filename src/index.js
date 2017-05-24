@@ -275,12 +275,11 @@ function Square (props){
     );
 
     if (props.cMark){
-      let cls = classNames('square', 'classical');
 
       return (
-        <div className={cls} onClick={props.onClick}>
+        <div className={'square classical'} onClick={props.onClick}>
           {dashHelper}
-          <div className="marks">
+          <div className="marks adjustCenter">
             { props.cMark[0] }<sub>{ props.cMark[1] }</sub>
           </div>
         </div>
