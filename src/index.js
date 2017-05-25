@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import attachFastClick from 'fastclick';
+import PropTypes from 'prop-types';
 
 import Graph from './graph.js';
 import {getWinnerMsg, calculateScores} from './helpers.js'
@@ -16,14 +17,34 @@ class Game extends React.Component {
     this.g = new Graph();
 
     this.state = {
-      cSquares: Array(9).fill(null), // classical squares
-      qSquares: Array(9).fill(null), // quantum squares
-      xIsNext: true,
+      cSquares: Array(9).fill(null),
+      /**
+        `i`th element contains classical mark for `i`th square, `null` if it has none
+        (3x3 grid of squares is represented as 1D array of length 9).
+      */
+      qSquares: Array(9).fill(null),
+      /**
+        `i`th element contains list of quantum marks contained in square `i`th square,
+        `null` if it has none.
+      */
       turnNum: 1,
       subTurnNum: 0,
+      /**
+        has value 0-3 to represent all states within a turn
+        (X move 1, X move 2, Y move 1, Y move 2)
+      */
       cycleSquares: null,
+      /**
+        Array of indexes of Squares involved in a cycle, `null` if none exists.
+      */
       cycleMarks: null,
+      /**
+        Array of marks (eg. 'X1', 'Y3') involved in a cycle, `null` if none exists.
+      */
       collapseSquare: null,
+      /**
+        Square selected to be origin of collapse, if there is a cycle.
+      */
       gameOver: false,
       xScore: 0,
       yScore: 0,
@@ -42,6 +63,7 @@ class Game extends React.Component {
     this.setState({status: msg});
   }
 
+  // dispatches click to appropriate handler based on state
   handleSquareClick(i){
 
     if (this.state.cycleSquares)
@@ -61,6 +83,7 @@ class Game extends React.Component {
       this.handleNormalMove(i);
   }
 
+  // adds quantum mark to square that was clicked on then checks if that created a cycle
   handleNormalMove(i){
     let qSquares = this.state.qSquares;
     let marker = this.whoseTurn() + this.state.turnNum;
@@ -98,6 +121,7 @@ class Game extends React.Component {
 
   }
 
+  // selects square to be collapse point
   handleCyclicEntanglement(i){
 
     if (! this.state.cycleSquares.has(i))
@@ -112,6 +136,7 @@ class Game extends React.Component {
                 });
   }
 
+  // collapes square and propogates changes outward
   handleCollapse(mark){
     console.log(mark);
     let i = this.state.collapseSquare;
@@ -208,12 +233,37 @@ class Game extends React.Component {
 
 class Board extends React.Component {
 
+  static propTypes = {
+    cSquares: PropTypes.array.isRequired,
+    /**
+      `i`th element contains classical mark for `i`th square, `null` if it has none
+      (3x3 grid of squares is represented as 1D array of length 9).
+    */
+    qSquares: PropTypes.array,
+    /**
+      `i`th element contains list of quantum marks contained in square `i`th square,
+      `null` if it has none.
+    */
+    onSquareClick: PropTypes.func.isRequired,
+    /**
+      Passes index of square that was clicked up to Game.handleSquareClick.
+    */
+    cycleSquares: PropTypes.instanceOf(Set),
+    /**
+      Contains indexes (Int) of squares involved in a cycle, `null` if no cycle exists.
+    */
+    cycleMarks: PropTypes.instanceOf(Set),
+    /**
+      Contains marks (String) involved in a cycle, `null` if no cycle exists.
+    */
+  }
+
   renderSquare(i) {
     return <Square
               cMark={this.props.cSquares[i]}
               qMarks={this.props.qSquares[i]}
               onClick={() => this.props.onSquareClick(i)}
-              isHighlighted={this.props.cycleSquares && this.props.cycleSquares.has(i)}
+              isHighlighted={Boolean(this.props.cycleSquares && this.props.cycleSquares.has(i))}
               isBeingCollapsed={this.props.collapseSquare === i}
               cycleMarks={this.props.cycleMarks}
            />;
@@ -243,6 +293,20 @@ class Board extends React.Component {
   }
 }
 
+SideBar.propTypes = {
+  choices: PropTypes.array,
+  /**
+    Contains marks in selected square if collapse ongoing, else is `null`
+  */
+  onChoiceClick: PropTypes.func.isRequired,
+  /**
+    Passes selected choice of mark up to Game.handleCollapse
+  */
+  status: PropTypes.string.isRequired,
+  /**
+    Conveys player information about the state of the game
+  */
+}
 
 function SideBar(props){
   let choices;
@@ -262,6 +326,36 @@ function SideBar(props){
             <div className="status"> {props.status} </div>
             {choices}
           </div>);
+}
+
+Square.propTypes = {
+  cMark: PropTypes.string,
+  /**
+    Classical mark to be displayed in Square, or `null` if there is none.
+  */
+  onClick: PropTypes.func.isRequired,
+  /**
+    Passes index of Square clicked up to Game.handleClick.
+  */
+  isHighlighted: PropTypes.bool.isRequired,
+  /**
+    True if square is involved in a cycle or not. If so, a rotating border
+    will be added to the square for emphasis.
+  */
+  isBeingCollapsed: PropTypes.bool.isRequired,
+  /**
+    True if there is a cycle and square is selected as collapse node.
+  */
+  qMarks: PropTypes.array,
+  /**
+    Contains quantum marks to display inside of Square. Ignored if `cMark` is non-null.
+  */
+  cycleMarks: PropTypes.array,
+  /**
+    Contains marks involved in cycle, `null` if no cycle currently exists. Used to
+    colorize only marks involved in cycle, as they are the only valid targets for
+    collapse.
+  */
 }
 
 function Square (props){

@@ -5,9 +5,14 @@
   "dependencies": {
     "assert": "^1.4.1",
     "classnames": "^2.2.5",
+    "express": "^4.15.3",
     "fastclick": "^1.0.6",
+    "open": "^0.0.5",
+    "prop-types": "^15.5.10",
     "react": "^15.5.4",
-    "react-dom": "^15.5.4"
+    "react-dom": "^15.5.4",
+    "socket.io": "^2.0.1",
+    "socket.io-client": "^2.0.1"
   },
   "devDependencies": {
     "react-scripts": "0.9.5"

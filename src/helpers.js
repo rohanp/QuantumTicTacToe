@@ -1,4 +1,4 @@
-// pure helper functions
+// pure functions to help with game logic in index.js
 
 export function getWinnerMsg(scores){
   let msg;
