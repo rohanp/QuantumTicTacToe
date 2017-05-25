@@ -1,4 +1,7 @@
-// undirected multigraph class
+/**
+ An undirected multigraph class
+*/
+
 import assert from 'assert';
 
 class Node{
@@ -8,6 +11,9 @@ class Node{
   }
 }
 
+/** Need both Node and Edge for mulitgraph, as each node can have multiple
+    edges between them, whose uniqueness needs to be accounted for.
+*/
 class Edge{
   constructor(node1, node2, key){
     this.start = node1;
@@ -54,17 +60,19 @@ export default class Graph{
     return Object.keys(this.nodes).length;
   }
 
+  /**
+    @param {Object} startId - id of one of the nodes involved in the cycle
+    @return {Boolean}
+  */
   isCyclic(startId){
+    // TODO: optimize
     return Boolean(this.getCycle(startId));
   }
 
-  getCycleNodes(startId){
-    //TODO
-  }
-  getCycleEdges(startId){
-    //TODO
-  }
-
+  /**
+    @param {Object} startId - id of one of the nodes involved in the cycle
+    @return {List} List of Nodes and Edges involved in cycle
+  */
   getCycle(startId){
 
     // case one: graph too small for cycles
