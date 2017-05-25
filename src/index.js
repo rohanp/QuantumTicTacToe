@@ -191,12 +191,12 @@ class Game extends React.Component {
   render() {
     let status, choices;
 
-    if (this.state.status)
+    if (this.state.status != null)
       status = this.state.status;
     else
       status = `Player ${this.whoseTurn()} is next!`;
 
-    if(this.state.collapseSquare)
+    if(this.state.collapseSquare != null)
       choices = this.state.qSquares[ this.state.collapseSquare ]
         .filter((choice) => this.state.cycleMarks.has(choice) )
 
@@ -311,7 +311,7 @@ SideBar.propTypes = {
 function SideBar(props){
   let choices;
 
-  if (props.choices)
+  if (props.choices != null)
     choices = props.choices.map((choice) => {
         return (
           <div className="collapseChoice"
@@ -350,7 +350,7 @@ Square.propTypes = {
   /**
     Contains quantum marks to display inside of Square. Ignored if `cMark` is non-null.
   */
-  cycleMarks: PropTypes.array,
+  cycleMarks: PropTypes.instanceOf(Set),
   /**
     Contains marks involved in cycle, `null` if no cycle currently exists. Used to
     colorize only marks involved in cycle, as they are the only valid targets for
@@ -369,7 +369,7 @@ function Square (props){
       </div>
     );
 
-    if (props.cMark){
+    if (props.cMark != null){
 
       return (
         <div className={'square classical'} onClick={props.onClick}>
@@ -404,7 +404,7 @@ function Square (props){
 function QuantumMarks (props){
 
   let spans;
-  if (props.qMarks){
+  if (props.qMarks != null){
     let marks = Array.from(props.qMarks.filter((x) => x != null));
 
     if (marks.length >= 1){
@@ -434,4 +434,4 @@ ReactDOM.render(
   <Game />,
   document.getElementById('root')
 );
-attachFastClick(document.body);
+attachFastClick.attach(document.body);
