@@ -11,6 +11,10 @@ app.use(express.static(path.join(__dirname, 'build')))
 
 let games = {}
 
+app.get('/', (req, res) => {
+
+})
+
 app.get('/:room', (req, res) => {
   console.log(req.params)
   let room = req.params.room
@@ -18,29 +22,24 @@ app.get('/:room', (req, res) => {
 
   games[room] = new Game();
 
-  nsp.on('connection', (socket) => {
+  nsp.once('connection', (socket) => {
     console.log("A user connected!");
 
     socket.on('click', (squareNum) => {
-      console.log(`player clicked on ${squareNum}`);
-
       games[room].handleSquareClick(squareNum);
-      console.log(games[room].state);
 
+      console.log(games[room].state);
       nsp.emit('new state', games[room].state);
     });
 
     socket.on('collapse click', (choice) => {
       games[room].handleCollapse(choice);
-
       nsp.emit('new state', games[room].state);
     })
-
-  })
+  });
 
   res.sendFile('index.html', {root: __dirname + '/build'});
 });
-
 
 http.listen(port, () => {
   console.log(`listening on *:${port}`);

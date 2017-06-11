@@ -7,8 +7,6 @@ import io from 'socket.io-client';
 import './style/index.css';
 import './style/rotation.css';
 
-const socket = io('/blah');
-
 class App extends Component {
 
   constructor(){
@@ -49,19 +47,25 @@ class App extends Component {
     }
   }
 
-  componentDidMount() {
-    socket.on('new state', (state) => {
+  componentWillMount() {
+    this.socket = io('/blah');
+
+    this.socket.on('new state', (state) => {
       console.log("received state");
       this.setState(state);
     })
   }
 
+  componentWillUnMount() {
+    this.socket.close();
+  }
+
   handleSquareClick(squareNum){
-    socket.emit('click', squareNum);
+    this.socket.emit('click', squareNum);
   }
 
   handleCollapse(choice){
-    socket.emit('collapse click', choice);
+    this.socket.emit('collapse click', choice);
   }
 
   whoseTurn(){
