@@ -1,7 +1,6 @@
 /**
  An undirected multigraph class
 */
-
 import assert from 'assert';
 
 class Node{
@@ -86,8 +85,8 @@ export default class Graph{
 
     for (let edge of start.edges){
       if (visited.has(edge.end)){
-        return [ new Set([edge.start.id, edge.end.id]),
-                 new Set([edge.key, endToEdge.get(edge.end).key])
+        return [ [edge.start.id, edge.end.id],
+                 [edge.key, endToEdge.get(edge.end).key]
                ];
       }
 
@@ -149,7 +148,7 @@ export default class Graph{
       currNode = currEdge.start;
     }
 
-    return [new Set(cycleNodeIds), new Set(cycleEdgeKeys)];
+    return [cycleNodeIds, cycleEdgeKeys];
   }
 }
 
