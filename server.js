@@ -9,30 +9,31 @@ const port = 3001;
 
 app.use(express.static(path.join(__dirname, 'build')))
 
+let games = {}
+
 app.get('/:room', (req, res) => {
   console.log(req.params)
   let room = req.params.room
   let nsp = io.of(`/${room}`);
-  console.log("here")
+
+  games[room] = new Game();
 
   nsp.on('connection', (socket) => {
     console.log("A user connected!");
 
-    let game = new Game();
-
     socket.on('click', (squareNum) => {
       console.log(`player clicked on ${squareNum}`);
 
-      game.handleSquareClick(squareNum);
-      console.log(game.state);
+      games[room].handleSquareClick(squareNum);
+      console.log(games[room].state);
 
-      nsp.emit('new state', game.state);
+      nsp.emit('new state', games[room].state);
     });
 
     socket.on('collapse click', (choice) => {
-      game.handleCollapse(choice);
+      games[room].handleCollapse(choice);
 
-      nsp.emit('new state', game.state);
+      nsp.emit('new state', games[room].state);
     })
 
   })
