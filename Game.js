@@ -47,22 +47,27 @@ export default class Game {
   // dispatches click to appropriate handler based on state
   handleSquareClick(i){
 
-    if (this.state.cycleSquares)
-      this.handleCyclicEntanglement(i);
+    if (this.state.gameOver)
+      return {
+                'X': "This game is already over! Start a new game!!",
+                'Y': "This game is already over! Start a new game!!"
+             };
 
-    else if (this.state.gameOver)
-      this.setStatus("This game is already over! Start a new game!!");
+    else if (this.state.cycleSquares)
+      return this.handleCyclicEntanglement(i);
 
     else if (this.state.cSquares[i])
-      this.setStatus("This square already has a classical mark! No more quantum marks can go here >:(");
+      return {
+                [this.whoseTurn()]: "This square already has a classical mark! No more quantum marks can go here >:("
+             };
 
-    else if (this.state.subTurnNum % 2 // second move
-        && this.state.lastMove === i)
-      this.setStatus("Can't move twice in the same square! \n What do you think this is... regular tic tac toe??");
+    else if (this.isSecondMove() && this.state.lastMove === i)
+      return {
+                [this.whoseTurn()]: "Can't move twice in the same square! \n What do you think this is... regular tic tac toe??"
+            };
 
     else
-      this.handleNormalMove(i);
-
+      return this.handleNormalMove(i);
 
   }
 
@@ -81,12 +86,12 @@ export default class Game {
     if (this.isSecondMove())
       this.g.addEdge(this.state.lastMove, i, marker);
 
-    let cycleSquares, cycleMarks, status;
+    let cycleSquares, cycleMarks, whoDecidesCollapse, status;
 
     if (this.g.isCyclic(i)){
       [cycleSquares, cycleMarks] = this.g.getCycle(i);
 
-      let whoDecidesCollapse = this.whoseTurn() === 'X' ? 'Y' : 'X' // opposite of who made cycle
+      whoDecidesCollapse = this.whoseTurn() === 'X' ? 'Y' : 'X' // opposite of who made cycle
       status = `A loop of entanglement has occured! Player ${whoDecidesCollapse} will decide which of the possible states the board will collapse into. Click one of the squares involved in the loop.`;
     }
 
@@ -94,7 +99,6 @@ export default class Game {
                     qSquares,
                     cycleSquares,
                     cycleMarks,
-                    status,
                     turnNum: (this.state.subTurnNum + 1 === 4)
                                 ? this.state.turnNum + 1
                                 : this.state.turnNum,
@@ -102,20 +106,30 @@ export default class Game {
                     lastMove: i,
                  });
 
+    if (whoDecidesCollapse !== undefined)
+      return {
+                'X': status,
+                'Y': status,
+             };
+    else if (this.isSecondMove())
+      return {
+                [this.whoseTurn()]: "Now put a second quantum move. This move is entangled with your previous move. When there is a cycle of entanglement, a collapse will occur and only one of these quantum marks will turn into a classical mark.",
+                [this.notWhoseTurn()]: `Player ${this.whoseTurn()}'s move.`
+             };
+    else
+      return {
+                [this.whoseTurn()]: "Your turn! Put down a quantum move (these are the small marks).",
+                [this.notWhoseTurn()]: `Now it's ${this.whoseTurn()}'s turn. Fun fact:`
+            };
   }
 
   // selects square to be collapse point
   handleCyclicEntanglement(i){
 
     if (! this.state.cycleSquares.includes(i))
-      return
-
-    // opposite of who made cycle
-    let whoDecidesCollapse = this.whoseTurn() === 'X' ? 'X' : 'Y'
-    let status = `Now, player ${whoDecidesCollapse}: choose below which state you want to occupy the selected square.`
+      return [this[ this.notWhoseTurn() ], "Now, choose below which state you want to occupy the selected square."]
 
     this.setState({
-                  status,
                   collapseSquare: i,
                 });
   }
@@ -172,8 +186,12 @@ export default class Game {
     }
   }
 
+  notWhoseTurn(){
+    return (this.state.subTurnNum < 2) ? 'Y' : 'X';
+  }
+
   handleNotYourTurn(){
-    this.state.status = "It's not your turn!";
+    return [this[this.notWhoseTurn()], "It's not your turn!"];
   }
 
   getPlayer(socketID){

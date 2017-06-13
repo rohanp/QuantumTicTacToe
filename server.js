@@ -29,8 +29,10 @@ app.get('/:room', (req, res) => {
 
     if (game.X === undefined)
       game.X = socket.id;
-    else if (game.Y === undefined)
+    else if (game.Y === undefined){
       game.Y = socket.id;
+      game.room = room;
+    }
     else
       return;
 
@@ -41,16 +43,22 @@ app.get('/:room', (req, res) => {
       let game = games[room];
 
       if (game.isTurn(socket.id)){
-        game.handleSquareClick(squareNum);
+        let status = game.handleSquareClick(squareNum);
 
         nsp.emit('new state', game.state);
+
+        if (status.X)
+          nsp.to(game.X).emit('new status', status.X);
+        if (status.Y)
+          nsp.to(game.Y).emit('new status', status.Y);
+
       } else {
-        game.handleNotYourTurn();
-        nsp.to(socket.id).emit('new state', game.state);
+        nsp.to(socket.id).emit('new status', "not your turn!");
       }
     });
 
     socket.on('collapse click', (choice) => {
+      console.log("collapse click")
       let game = games[room];
 
       if (game.isTurn(socket.id) &&
@@ -59,16 +67,15 @@ app.get('/:room', (req, res) => {
         game.handleCollapse(choice);
         nsp.emit('new state', game.state);
       } else {
-        game.handleNotYourTurn();
-        nsp.to(socket.id).emit('new state', game.state);
+        nsp.to(socket.id).emit('new status', "not your turn!");
       }
-    })
+    });
 
-    socket.on('request state', () => {
+    socket.on('request status', () => {
       let game = games[room];
-      game.state.status = `Welcome! You are player ${game.getPlayer(socket.id)}`;
-      nsp.to(socket.id).emit('new state', game.state);
-    })
+      let status = `Welcome! You are player ${game.getPlayer(socket.id)}`;
+      nsp.to(socket.id).emit('new status', status);
+    });
 
   });
 
