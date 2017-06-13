@@ -173,6 +173,13 @@ export default class Game {
   }
 
   // utility functions
+  isTurn(id){
+    if (this.whoseTurn() === 'X')
+      return this.X === id;
+    else
+      return this.Y === id;
+  }
+
   whoseTurn(){
     return (this.state.subTurnNum < 2) ? 'X' : 'Y';
   }
