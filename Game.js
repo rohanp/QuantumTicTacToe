@@ -111,7 +111,7 @@ export default class Game {
       return
 
     // opposite of who made cycle
-    let whoDecidesCollapse = this.whoseTurn() === 'X' ? 'Y' : 'X'
+    let whoDecidesCollapse = this.whoseTurn() === 'X' ? 'X' : 'Y'
     let status = `Now, player ${whoDecidesCollapse}: choose below which state you want to occupy the selected square.`
 
     this.setState({
@@ -170,6 +170,17 @@ export default class Game {
         this._handleCollapseHelper(edge.key, edge.end.id, visited);
       }
     }
+  }
+
+  handleNotYourTurn(){
+    this.state.status = "It's not your turn!";
+  }
+
+  getPlayer(socketID){
+    if (this.X === socketID)
+      return 'X';
+    if (this.Y === socketID)
+      return 'Y';
   }
 
   // utility functions

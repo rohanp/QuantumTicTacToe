@@ -43,7 +43,8 @@ class App extends Component {
       */
       gameOver: false,
       xScore: 0,
-      yScore: 0
+      yScore: 0,
+      status: ""
     }
   }
 
@@ -54,6 +55,10 @@ class App extends Component {
       console.log("received state");
       this.setState(state);
     })
+  }
+
+  componentDidMount(){
+    this.socket.emit('request state');
   }
 
   componentWillUnMount() {

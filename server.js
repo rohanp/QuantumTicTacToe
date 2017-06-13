@@ -45,7 +45,8 @@ app.get('/:room', (req, res) => {
 
         nsp.emit('new state', game.state);
       } else {
-        console.log(`not ur turn, ${socket.id} its ${game.X}'s turn`);
+        game.handleNotYourTurn();
+        nsp.to(socket.id).emit('new state', game.state);
       }
     });
 
@@ -57,12 +58,32 @@ app.get('/:room', (req, res) => {
 
         game.handleCollapse(choice);
         nsp.emit('new state', game.state);
+      } else {
+        game.handleNotYourTurn();
+        nsp.to(socket.id).emit('new state', game.state);
       }
     })
+
+    socket.on('request state', () => {
+      let game = games[room];
+      game.state.status = `Welcome! You are player ${game.getPlayer(socket.id)}`;
+      nsp.to(socket.id).emit('new state', game.state);
+    })
+
   });
 
   res.sendFile('index.html', {root: __dirname + '/build'});
 });
+
+app.post('/id', (req, res) =>{
+  let id = req.params.socketID;
+  let room = req.params.room;
+  if (game[room].X === id)
+    return 'X';
+  else if (game[room].Y === id)
+    return 'Y';
+})
+
 
 http.listen(port, () => {
   console.log(`listening on *:${port}`);
