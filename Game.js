@@ -191,7 +191,7 @@ export default class Game {
   }
 
   opposite(p){
-    return p === 'X' ? 'Y' : X;
+    return p === 'X' ? 'Y' : 'X';
   }
 
   notWhoseTurn(){

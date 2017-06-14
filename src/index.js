@@ -74,8 +74,8 @@ class App extends Component {
     this.socket.emit('click', squareNum);
   }
 
-  handleCollapse(choice){
-    this.socket.emit('collapse click', choice);
+  handleCollapse(mark){
+    this.socket.emit('collapse click', mark);
   }
 
   whoseTurn(){
@@ -116,7 +116,7 @@ class App extends Component {
             <SideBar
               status={status}
               choices={choices}
-              onChoiceClick={(choice) => this.handleCollapse(choice)}
+              onChoiceClick={(mark) => this.handleCollapse(mark)}
              />
 
         </div>
@@ -189,24 +189,39 @@ SideBar.propTypes = {
   */
 }
 
-function SideBar(props){
-  let choices;
+class SideBar extends Component {
 
-  if (props.choices != null)
-    choices = props.choices.map((choice) => {
-        return (
-          <div className="collapseChoice"
-             onClick={() => props.onChoiceClick(choice)}
-             key={choice}>
-             {choice}
-          </div>
-        );
-      });
+  constructor(){
+    super()
 
-  return (<div className="game-info">
-            <div className="status"> {props.status} </div>
-            {choices}
-          </div>);
+    this.state = {highlighted: []};
+  }
+
+  componentDidMount(){
+
+  }
+
+  render(){
+    let choices;
+
+    if (props.choices != null)
+      choices = props.choices.map((choice) => {
+          return (
+            <div className="collapseChoice"
+               onClick={() => props.onChoiceClick(choice)}
+               onMouseOver={() => props.onChoiceHover(choice)}
+               onMouseOut={() => props.onChoiceHover(choice)}
+               key={choice}>
+               {choice}
+            </div>
+          );
+        });
+
+    return (<div className="game-info">
+              <div className="status"> {props.status} </div>
+              {choices}
+            </div>);
+  }
 }
 
 Square.propTypes = {
