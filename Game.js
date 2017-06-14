@@ -91,8 +91,8 @@ export default class Game {
     if (this.g.isCyclic(i)){
       [cycleSquares, cycleMarks] = this.g.getCycle(i);
 
-      whoDecidesCollapse = this.whoseTurn() === 'X' ? 'Y' : 'X' // opposite of who made cycle
-      status = `A loop of entanglement has occured! Player ${whoDecidesCollapse} will decide which of the possible states the board will collapse into. Click one of the squares involved in the loop.`;
+      whoDecidesCollapse = this.notWhoseTurn() // opposite of who made cycle
+      status = `A loop of entanglement has occured! Player ${whoDecidesCollapse} will decide which of the possible states the board will collapse into.`;
     }
 
     this.setState({
@@ -108,8 +108,8 @@ export default class Game {
 
     if (whoDecidesCollapse !== undefined)
       return {
-                'X': status,
-                'Y': status,
+                [whoDecidesCollapse]: status + "Click one of the squares involved in the loop.",
+                [this.opposite(whoDecidesCollapse)]: status,
              };
     else if (this.isSecondMove())
       return {
@@ -127,11 +127,15 @@ export default class Game {
   handleCyclicEntanglement(i){
 
     if (! this.state.cycleSquares.includes(i))
-      return [this[ this.notWhoseTurn() ], "Now, choose below which state you want to occupy the selected square."]
+      return {
+                [this.whoseTurn()]: "Must pick square involved in cyclic entanglement! (is highlighted in blue)"
+             }
 
     this.setState({
                   collapseSquare: i,
                 });
+    return {[this.whoseTurn()]: "Now, choose below which state you want to occupy the selected square."}
+
   }
 
   // collapes square and propogates changes outward
@@ -184,6 +188,10 @@ export default class Game {
         this._handleCollapseHelper(edge.key, edge.end.id, visited);
       }
     }
+  }
+
+  opposite(p){
+    return p === 'X' ? 'Y' : X;
   }
 
   notWhoseTurn(){

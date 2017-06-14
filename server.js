@@ -40,6 +40,7 @@ app.get('/:room', (req, res) => {
     console.log(`Player Y: ${games[room].Y}`);
 
     socket.on('click', (squareNum) => {
+      console.log("click!");
       let game = games[room];
 
       if (game.isTurn(socket.id)){
