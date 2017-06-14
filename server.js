@@ -40,7 +40,6 @@ app.get('/:room', (req, res) => {
     console.log(`Player Y: ${games[room].Y}`);
 
     socket.on('click', (squareNum) => {
-      console.log("click!");
       let game = games[room];
 
       if (game.isTurn(socket.id)){
@@ -54,12 +53,11 @@ app.get('/:room', (req, res) => {
           nsp.to(game.Y).emit('new status', status.Y);
 
       } else {
-        nsp.to(socket.id).emit('new status', "not your turn!");
+        nsp.to(socket.id).emit('new status', "Not your turn!");
       }
     });
 
     socket.on('collapse click', (choice) => {
-      console.log("collapse click")
       let game = games[room];
 
       if (game.isTurn(socket.id) &&
@@ -68,7 +66,7 @@ app.get('/:room', (req, res) => {
         game.handleCollapse(choice);
         nsp.emit('new state', game.state);
       } else {
-        nsp.to(socket.id).emit('new status', "not your turn!");
+        nsp.to(socket.id).emit('new status', "Not your turn!");
       }
     });
 

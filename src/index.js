@@ -189,19 +189,7 @@ SideBar.propTypes = {
   */
 }
 
-class SideBar extends Component {
-
-  constructor(){
-    super()
-
-    this.state = {highlighted: []};
-  }
-
-  componentDidMount(){
-
-  }
-
-  render(){
+function SideBar(props){
     let choices;
 
     if (props.choices != null)
@@ -209,8 +197,6 @@ class SideBar extends Component {
           return (
             <div className="collapseChoice"
                onClick={() => props.onChoiceClick(choice)}
-               onMouseOver={() => props.onChoiceHover(choice)}
-               onMouseOut={() => props.onChoiceHover(choice)}
                key={choice}>
                {choice}
             </div>
@@ -221,7 +207,7 @@ class SideBar extends Component {
               <div className="status"> {props.status} </div>
               {choices}
             </div>);
-  }
+
 }
 
 Square.propTypes = {
