@@ -1,6 +1,7 @@
 import path from 'path';
 import express from 'express';
-import Game from './Game.js'
+import Game from './Game.js';
+import Moniker from 'moniker';
 
 const app = express();
 const http = require('http').Server(app)
@@ -12,7 +13,7 @@ app.use(express.static(path.join(__dirname, 'build')))
 let games = {}
 
 app.get('/', (req, res) => {
-
+  res.sendFile('index.html', {root: __dirname + '/home'})
 })
 
 app.get('/:room', (req, res) => {
@@ -44,7 +45,6 @@ app.get('/:room', (req, res) => {
 
       if (game.isTurn(socket.id)){
         let status = game.handleSquareClick(squareNum);
-
         nsp.emit('new state', game.state);
 
         if (status.X)
