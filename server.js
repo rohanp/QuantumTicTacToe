@@ -13,7 +13,7 @@ app.use(express.static(path.join(__dirname, 'build')))
 let games = {}
 
 app.get('/', (req, res) => {
-  res.sendFile('index.html', {root: __dirname + '/home'})
+  res.sendFile('index.html', {root: __dirname + '/build'});
 })
 
 app.get('/:room', (req, res) => {
@@ -80,15 +80,6 @@ app.get('/:room', (req, res) => {
 
   res.sendFile('index.html', {root: __dirname + '/build'});
 });
-
-app.post('/id', (req, res) =>{
-  let id = req.params.socketID;
-  let room = req.params.room;
-  if (game[room].X === id)
-    return 'X';
-  else if (game[room].Y === id)
-    return 'Y';
-})
 
 
 http.listen(port, () => {
