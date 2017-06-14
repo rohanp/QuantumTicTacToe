@@ -49,7 +49,7 @@ class App extends Component {
   }
 
   componentWillMount() {
-    this.socket = io('/blah');
+    this.socket = io(window.location.pathname);
 
     this.socket.on('new state', (state) => {
       console.log("received state");
