@@ -1,12 +1,12 @@
-import path from 'path';
-import express from 'express';
-import Game from './src/Game.js';
-import Moniker from 'moniker';
+const path = require('path');
+const express = require('express');
+const Game = require('./src/Game.js');
+const Moniker = require('moniker');
 
 const app = express();
 const http = require('http').Server(app)
 const io = require('socket.io')(http);
-const port = 4001;
+const port = 5001;
 
 app.use(express.static(path.join(__dirname, 'build')))
 

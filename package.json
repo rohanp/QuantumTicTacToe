@@ -26,9 +26,8 @@
     "react-scripts": "0.9.5"
   },
   "scripts": {
-    "run": "react-scripts build && babel-node server.js",
     "build": "react-scripts build",
-    "start": "babel-node server.js"
+    "start": "node server.js"
   },
   "babel": {
     "presets": [

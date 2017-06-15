@@ -1,7 +1,7 @@
 /**
  An undirected multigraph class
 */
-import assert from 'assert';
+const assert = require('assert');
 
 class Node{
   constructor(id){
@@ -21,7 +21,7 @@ class Edge{
   }
 }
 
-export default class Graph{
+class Graph{
 
   constructor(){
       this.nodes = {};
@@ -263,3 +263,5 @@ function runTests(){
 }
 
 //runTests();
+
+module.exports = Graph;

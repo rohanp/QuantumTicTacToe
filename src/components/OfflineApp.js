@@ -10,7 +10,7 @@ export default class OfflineApp extends React.Component {
   constructor(){
     super();
     this.game = new Game();
-    this.state = this.game.state;
+    this.state = Object.assign({status: "Player X's turn!"}, this.game.state);
   }
 
   whoseTurn(){
