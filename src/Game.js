@@ -3,7 +3,7 @@ import {getWinnerMsg, calculateScores} from './helpers.js';
 
 export default class Game {
 
-  constructor(room) {
+  constructor(controller) {
     this.g = new Graph();
     this.state = {
       cSquares: Array(9).fill(null),
@@ -40,9 +40,7 @@ export default class Game {
     }
   }
 
-  setState(obj){
-    Object.assign(this.state, obj);
-  }
+  setState = (obj) => Object.assign(this.state, obj);
 
   // dispatches click to appropriate handler based on state
   handleSquareClick(i){
@@ -148,8 +146,12 @@ export default class Game {
 
     let scores = calculateScores(this.state.cSquares);
 
+    let status;
     if (scores){ // if someone won
-      let status = getWinnerMsg(scores);
+      status = {
+                'X': getWinnerMsg(scores),
+                'Y': getWinnerMsg(scores)
+              };
 
       this.setState({
         status,
@@ -161,6 +163,10 @@ export default class Game {
         collapseSquare: null,
       })
     } else {
+      status = {
+                  'X': `${this.whoseTurn()} next!`,
+                  'Y': `${this.whoseTurn()} next!`
+              };
 
       this.setState({
         cycleSquares: null,
@@ -169,6 +175,7 @@ export default class Game {
       });
     }
 
+    return status;
   }
 
   _handleCollapseHelper(mark, i, visited){
