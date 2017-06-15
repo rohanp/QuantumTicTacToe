@@ -1,6 +1,6 @@
 import path from 'path';
 import express from 'express';
-import Game from '.src/Game.js';
+import Game from './src/Game.js';
 import Moniker from 'moniker';
 
 const app = express();
