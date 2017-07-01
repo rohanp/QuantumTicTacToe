@@ -1,8 +1,23 @@
-body {
+html, body {
+  width: 100%;
+  height: 100%;
   font: 14px "Century Gothic", Futura, sans-serif;
-  margin: 20px;
   background-color: #374046;
   color: #e0e0e0;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 ol, ul {

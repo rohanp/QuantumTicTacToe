@@ -2,7 +2,7 @@
   "name": "quantum_tic_tac_toe",
   "version": "0.1.0",
   "engines": {
-  "node": "7.x"
+    "node": "7.x"
   },
   "private": true,
   "dependencies": {
@@ -11,13 +11,16 @@
     "classnames": "^2.2.5",
     "express": "^4.15.3",
     "fastclick": "^1.0.6",
+    "material-ui": "^0.18.5",
     "moniker": "^0.1.2",
     "open": "^0.0.5",
     "path": "^0.12.7",
     "prop-types": "^15.5.10",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
+    "react-particles-js": "^1.5.0",
     "react-router-dom": "^4.1.1",
+    "sillyname": "^0.1.0",
     "socket.io": "^2.0.2",
     "socket.io-client": "^2.0.2",
     "utf-8-validate": "^3.0.2"

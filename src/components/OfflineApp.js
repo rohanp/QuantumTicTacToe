@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import assert from 'assert';
 import Board from './Board.js';
 import SideBar from './SideBar.js';
 import Game from '../Game.js';
 import '../style/app.css';
 
 
-export default class OfflineApp extends React.Component {
+export default class OfflineApp extends Component {
   constructor(){
     super();
     this.game = new Game();
@@ -50,13 +49,6 @@ export default class OfflineApp extends React.Component {
     this.setState({status});
   }
 
-  whoseTurn(){
-    return (this.state.subTurnNum < 2) ? 'X' : 'Y';
-  }
-
-  isSecondMove(){
-    return this.state.subTurnNum === 1 || this.state.subTurnNum === 3;
-  }
   render() {
     let choices;
     console.log(this.state);

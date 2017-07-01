@@ -7,8 +7,8 @@ import '../style/app.css';
 
 export default class App extends Component {
 
-  constructor(){
-    super();
+  constructor(props){
+    super(props);
 
     this.state = {
       cSquares: Array(9).fill(null),
@@ -42,12 +42,13 @@ export default class App extends Component {
       gameOver: false,
       xScore: 0,
       yScore: 0,
-      status: "",
+      status: `You have joined game ${props.name}! Send your url to your friend so they can join.`,
     }
   }
 
   componentWillMount() {
-    this.socket = io(window.location.pathname);
+    console.log(`connecting to ${this.props.name}`);
+    this.socket = io(`/${this.props.name}`);
 
     this.socket.on('new state', (state) => {
       console.log("received state");

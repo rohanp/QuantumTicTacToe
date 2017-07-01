@@ -6,7 +6,7 @@ const Moniker = require('moniker');
 const app = express();
 const http = require('http').Server(app)
 const io = require('socket.io')(http);
-const port = process.env.PORT || port;
+const port = process.env.PORT || 5001;
 
 app.use(express.static(path.join(__dirname, 'build')))
 
