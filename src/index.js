@@ -43,18 +43,20 @@ const App = () => {
 
       <div className="overlay">
         <div className="withinOverlay">
-          <MuiThemeProvider>
-            <Router>
-              <div>
-                <Route exact path="/" component={Home}/>
+        <MuiThemeProvider>
+          <Router>
+            <div>
+              <Route exact path="/" component={Home}/>
 
-                <Route path="/g/:name" render={ ({match}) => {
-                    return <OnlineApp name={match.params.name} />
-                }}/>
-              <Route exact path="/offline" component={OfflineApp}/>
-              </div>
-            </Router>
-          </MuiThemeProvider>
+              <Route path="/g/:name" render={ ({match}) => {
+                  return <div className="board"> <OnlineApp name={match.params.name} /> </div>
+              }}/>
+            <Route exact path="/offline" render={ () => {
+                  return <div className="board"> <OfflineApp /> </div>
+              }}/>
+            </div>
+          </Router>
+        </MuiThemeProvider>
         </div>
       </div>
     </div>

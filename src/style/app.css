@@ -5,10 +5,12 @@ html, body {
   background-color: #374046;
   color: #e0e0e0;
   overflow-y: hidden;
+  overflow-x: hidden;
 }
 
 h1 {
   color: white;
+  user-select: none;
 }
 
 #root {
@@ -29,6 +31,11 @@ h1 {
   position: relative;
   left: -50%;
   margin-top: -25%;
+}
+
+.board {
+  position: relative;
+  margin-top: -40%;
 }
 
 .border {
