@@ -118,7 +118,7 @@ class Game {
     else
       return {
                 [this.whoseTurn()]: "Your turn! Put down a quantum move (these are the small marks).",
-                [this.notWhoseTurn()]: `Now it's ${this.whoseTurn()}'s turn. Fun fact:`
+                [this.notWhoseTurn()]: `Now it's ${this.whoseTurn()}'s turn.`
             };
   }
 
