@@ -6,11 +6,11 @@ html, body {
   color: #e0e0e0;
   overflow-y: hidden;
   overflow-x: hidden;
+  user-select: none;
 }
 
 h1 {
   color: white;
-  user-select: none;
 }
 
 #root {

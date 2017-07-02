@@ -43,6 +43,8 @@ connect = (req, res) => {
     else if (game.Y === undefined){
       game.Y = socket.id;
       game.room = room;
+      nsp.to(game.X).emit('new status', 'You are player X! Click on any square to begin.');
+      nsp.to(game.Y).emit('new status', 'You are player Y! Wait for player X make their move.');
     }
     else
       return;

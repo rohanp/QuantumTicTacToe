@@ -42,7 +42,7 @@ export default class App extends Component {
       gameOver: false,
       xScore: 0,
       yScore: 0,
-      status: `You have joined game ${props.name}! Send your url to your friend so they can join.`,
+      status: `You have joined game ${props.name}! Send this url to your friend so they can join.`,
     }
   }
 
@@ -63,11 +63,6 @@ export default class App extends Component {
       console.log("received status");
       this.setState({status});
     });
-  }
-
-  componentDidMount(){
-    console.log("requesting status")
-    this.socket.emit('request status');
   }
 
   componentWillUnMount() {
