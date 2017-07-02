@@ -20,7 +20,7 @@ app.post('/g/:room', (req, res) => {
 })
 
 app.get('/g/:room', (req, res) => {
-  connect(req, res);
+  //connect(req, res);
   res.sendFile('index.html', {root: __dirname + '/build'});
 });
 
