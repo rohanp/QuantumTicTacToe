@@ -16,10 +16,20 @@ app.get('/', (req, res) => {
   res.sendFile('index.html', {root: __dirname + '/build'});
 })
 
+app.post('/g/:room', (req, res) => {
+  connect(req, res);
+})
+
 app.get('/g/:room', (req, res) => {
+  connect(req, res);
+  res.sendFile('index.html', {root: __dirname + '/build'});
+});
+
+
+connect = (req, res) => {
   console.log(req.params);
   let room = req.params.room;
-  let nsp = io.of(`/${room}`);
+  let nsp = io.of(`/g/${room}`);
 
   if (games[room] === undefined)
     games[room] = new Game()
@@ -75,11 +85,8 @@ app.get('/g/:room', (req, res) => {
       let status = `Welcome! You are player ${game.getPlayer(socket.id)}`;
       nsp.to(socket.id).emit('new status', status);
     });
-
   });
-
-  res.sendFile('index.html', {root: __dirname + '/build'});
-});
+}
 
 
 http.listen(port, () => {

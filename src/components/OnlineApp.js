@@ -48,7 +48,11 @@ export default class App extends Component {
 
   componentWillMount() {
     console.log(`connecting to ${this.props.name}`);
-    this.socket = io(`/${this.props.name}`);
+    fetch(`/g/${this.props.name}`, {
+      method: 'POST',
+    });
+
+    this.socket = io(`/g/${this.props.name}`);
 
     this.socket.on('new state', (state) => {
       console.log("received state");
@@ -62,6 +66,7 @@ export default class App extends Component {
   }
 
   componentDidMount(){
+    console.log("requesting status")
     this.socket.emit('request status');
   }
 
