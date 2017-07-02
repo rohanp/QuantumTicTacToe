@@ -1,7 +1,6 @@
 const path = require('path');
 const express = require('express');
 const Game = require('./src/Game.js');
-const Moniker = require('moniker');
 
 const app = express();
 const http = require('http').Server(app)
