@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
   res.sendFile('index.html', {root: __dirname + '/build'});
 })
 
-app.get('/:room', (req, res) => {
+app.get('/g/:room', (req, res) => {
   console.log(req.params);
   let room = req.params.room;
   let nsp = io.of(`/${room}`);
