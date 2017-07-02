@@ -26,10 +26,10 @@ const Home = () => {
       <center>
         <h1 className=""> Quantum Tic Tac Toe </h1>
         <Link to={`/g/${name}`}>
-          <RaisedButton label="online" style={style}/>
+          <div className="button"> online </div>
         </Link>
         <Link to={"/offline"}>
-          <RaisedButton label="offline" style={style}/>
+          <div className="button"> offline </div>
         </Link>
       </center>
     </div>
