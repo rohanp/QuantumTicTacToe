@@ -1,8 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import attachFastClick from 'fastclick';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import RaisedButton from 'material-ui/RaisedButton';
 import generateName from 'sillyname';
 import ReactDipper from 'react-dipper';
 import {
@@ -18,8 +16,6 @@ import './style/app.css';
 let name = generateName().split(' ')[0].toLowerCase();
 
 const Home = () => {
-  const style = {margin: 10}
-  //const labelstyle = {"text-transform": "none"}
 
   return (
     <div className="border">
@@ -43,7 +39,6 @@ const App = () => {
 
       <div className="overlay">
         <div className="withinOverlay">
-        <MuiThemeProvider>
           <Router>
             <div>
               <Route exact path="/" component={Home}/>
@@ -56,7 +51,6 @@ const App = () => {
               }}/>
             </div>
           </Router>
-        </MuiThemeProvider>
         </div>
       </div>
     </div>
