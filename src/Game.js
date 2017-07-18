@@ -4,6 +4,7 @@ class Game {
 
   constructor(controller) {
     this.g = new Graph();
+    this.timer = this.timer.bind(this);
     this.state = {
       cSquares: Array(9).fill(null),
       /**
@@ -34,9 +35,23 @@ class Game {
         Square selected to be origin of collapse, if there is a cycle.
       */
       gameOver: false,
+      xTimeLeft: 60 * 5,  // in seconds
+      yTimeLeft: 60 * 5,
       xScore: 0,
       yScore: 0,
     }
+
+  }
+
+  whoseTurn() {
+    return (this.state.subTurnNum < 2) ? 'X' : 'Y';
+  }
+
+  timer() {
+    if (this.whoseTurn() === 'X')
+      this.setState({xTimeLeft: this.state.xTimeLeft - 1})
+    else if (this.whoseTurn() === 'Y')
+      this.setState({yTimeLeft: this.state.yTimeLeft - 1})
   }
 
   setState(obj){
@@ -45,6 +60,9 @@ class Game {
 
   // dispatches click to appropriate handler based on state
   handleSquareClick(i){
+
+    if (this.state.turnNum === 1 && this.state.subTurnNum === 0) // initialize timer at game start
+      setInterval(this.timer, 1000);
 
     if (this.state.gameOver)
       return {
@@ -223,10 +241,6 @@ class Game {
       return this.X === id;
     else
       return this.Y === id;
-  }
-
-  whoseTurn(){
-    return (this.state.subTurnNum < 2) ? 'X' : 'Y';
   }
 
   isSecondMove(){

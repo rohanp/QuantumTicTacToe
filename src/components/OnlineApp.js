@@ -10,6 +10,8 @@ export default class App extends Component {
   constructor(props){
     super(props);
 
+    this.timer = this.timer.bind(this);
+
     this.state = {
       cSquares: Array(9).fill(null),
       /**
@@ -42,6 +44,8 @@ export default class App extends Component {
       gameOver: false,
       xScore: 0,
       yScore: 0,
+      xTimeLeft: 60 * 5,
+      yTimeLeft: 60 * 5,
       status: `You have joined game ${props.name}! Send this url to your friend so they can join.`,
     }
   }
@@ -69,7 +73,22 @@ export default class App extends Component {
     this.socket.close();
   }
 
+  timer() {
+    if (this.whoseTurn() === 'X'){
+      this.setState({xTimeLeft: this.state.xTimeLeft - 1})
+    }
+    else if (this.whoseTurn() === 'Y'){
+      this.setState({yTimeLeft: this.state.yTimeLeft - 1})
+    }
+  }
+
   handleSquareClick(squareNum){
+
+    if (this.state.turnNum === 1 && this.state.subTurnNum === 0){ // initialize timer at game start
+      setInterval(this.timer, 1000);
+      console.log("here!")
+    }
+
     this.socket.emit('click', squareNum);
   }
 
@@ -79,6 +98,10 @@ export default class App extends Component {
 
   whoseTurn(){
     return (this.state.subTurnNum < 2) ? 'X' : 'Y';
+  }
+
+  formatTime(value) {
+      return Math.floor(value / 60) + ":" + (value % 60 ? value % 60 : '00')
   }
 
   render() {
@@ -108,8 +131,8 @@ export default class App extends Component {
                 onSquareClick={(i) => this.handleSquareClick(i)}
               />
 
-              <div className="xScore"> X: {this.state.xScore} </div>
-              <div className="yScore"> Y: {this.state.yScore} </div>
+            <div className="xScore"> X: {this.formatTime(this.state.xTimeLeft)} </div>
+            <div className="yScore"> Y: {this.formatTime(this.state.yTimeLeft)} </div>
           </div>
 
             <SideBar
