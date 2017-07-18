@@ -40,7 +40,6 @@ class Game {
       xScore: 0,
       yScore: 0,
     }
-
   }
 
   whoseTurn() {
@@ -48,10 +47,25 @@ class Game {
   }
 
   timer() {
-    if (this.whoseTurn() === 'X')
-      this.setState({xTimeLeft: this.state.xTimeLeft - 1})
-    else if (this.whoseTurn() === 'Y')
-      this.setState({yTimeLeft: this.state.yTimeLeft - 1})
+    if (this.whoseTurn() === 'X'){
+      if (this.state.xTimeLeft <= 0){
+        console.log("here!!")
+        this.setState({
+          gameOver: true,
+          status: "Player X has run out of time. Player Y wins!"
+        })
+      } else
+        this.setState({xTimeLeft: this.state.xTimeLeft - 1})
+    }
+    else if (this.whoseTurn() === 'Y'){
+      if (this.state.yTimeLeft <= 0){
+        this.setState({
+          gameOver: true,
+          status: "Player Y has run out of time. Player X wins!"
+        })
+      } else
+        this.setState({yTimeLeft: this.state.yTimeLeft - 1})
+    }
   }
 
   setState(obj){

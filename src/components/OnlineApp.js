@@ -75,10 +75,25 @@ export default class App extends Component {
 
   timer() {
     if (this.whoseTurn() === 'X'){
-      this.setState({xTimeLeft: this.state.xTimeLeft - 1})
+      if (this.state.xTimeLeft <= 0){
+        console.log("here!!!")
+        clearInterval(this.timerCallback);
+        this.setState({
+          gameOver: true,
+          status: "Player X has run out of time. Player Y wins!"
+        })
+      } else
+        this.setState({xTimeLeft: this.state.xTimeLeft - 1})
     }
     else if (this.whoseTurn() === 'Y'){
-      this.setState({yTimeLeft: this.state.yTimeLeft - 1})
+      if (this.state.yTimeLeft <= 0){
+        clearInterval(this.timerCallback);
+        this.setState({
+          gameOver: true,
+          status: "Player Y has run out of time. Player X wins!"
+        })
+      } else
+        this.setState({yTimeLeft: this.state.yTimeLeft - 1})
     }
   }
 
@@ -100,9 +115,11 @@ export default class App extends Component {
     return (this.state.subTurnNum < 2) ? 'X' : 'Y';
   }
 
-  formatTime(value) {
-      return Math.floor(value / 60) + ":" + (value % 60 ? value % 60 : '00')
+  // from stackoverflow
+  formatTime(time){
+    return ~~(time / 60) + ":" + (time % 60 < 10 ? "0" : "") + time % 60;
   }
+
 
   render() {
     let status, choices;
