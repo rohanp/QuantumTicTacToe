@@ -76,7 +76,6 @@ export default class App extends Component {
   timer() {
     if (this.whoseTurn() === 'X'){
       if (this.state.xTimeLeft <= 0){
-        console.log("here!!!")
         clearInterval(this.timerCallback);
         this.setState({
           gameOver: true,

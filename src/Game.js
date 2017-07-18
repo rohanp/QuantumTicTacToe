@@ -49,7 +49,6 @@ class Game {
   timer() {
     if (this.whoseTurn() === 'X'){
       if (this.state.xTimeLeft <= 0){
-        console.log("here!!")
         this.setState({
           gameOver: true,
           status: "Player X has run out of time. Player Y wins!"
