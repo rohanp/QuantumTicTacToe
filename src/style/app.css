@@ -48,6 +48,7 @@ h1 {
 
 .withinOverlay {
   position: relative;
+  width: 810px;
   left: -50%;
   margin-top: -25%;
 }

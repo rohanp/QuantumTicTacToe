@@ -15,6 +15,10 @@ app.get('/', (req, res) => {
   res.sendFile('index.html', {root: __dirname + '/build'});
 })
 
+app.get('/offline', (req, res) => {
+  res.sendFile('index.html', {root: __dirname + '/build'});
+})
+
 app.post('/g/:room', (req, res) => {
   connect(req, res);
 })
