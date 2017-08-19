@@ -48,7 +48,6 @@ h1 {
 
 .withinOverlay {
   position: relative;
-  width: 810px;
   left: -50%;
   margin-top: -25%;
 }
@@ -184,6 +183,10 @@ ol, ul {
   flex-direction: row;
   justify-content: center;
   margin-top: 50px;
+}
+
+.game-board {
+  width: 500px;
 }
 
 .game-info {
